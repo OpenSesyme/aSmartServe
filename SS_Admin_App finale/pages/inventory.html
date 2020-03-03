@@ -213,12 +213,21 @@
                     	</div>
 
                 		<div class="row" style="margin-bottom: 10px">
-							<div class="col-sm-8">
+							<div class="col-sm-4">
 								<input type="text" class="form-control" placeholder="Name of the item">
 							</div>
+                            <div class="col-sm-4">
+                                <select name="unit" class="form-control">
+                                    <option selected disabled>- Select Unit -</option>
+                                    <option>Kg</option>
+                                    <option>mg</option>
+                                    <option>qty</option>
+                                    <option>lbs</option>
+                                </select>
+                            </div>
 							<div class="col-sm-4">
-								<select name="measurements" class="form-control">
-									<option selected disabled>- Select Measurements -</option>
+								<select name="unit-per-item" class="form-control">
+									<option selected disabled>- Select Unit/Item -</option>
 									<option>Kg</option>
 									<option>mg</option>
 									<option>qty</option>
@@ -246,20 +255,10 @@
 						</div>
 
 						<div class="adding-new-item" id="add_units">
-							<h4>First Items</h4>
 							<div class="row">
-							  	<div class="col-sm-8">
-							  		<input type="text" class="form-control" placeholder="How many item are bought?">	
+							  	<div class="col-sm-12">
+							  		<input type="number" class="form-control" placeholder="Quantity">	
 							  	</div>
-							  	<div class="col-sm-4">
-									<select name="measurements" class="form-control">
-										<option selected disabled>- Select Measurements -</option>
-										<option>Kg</option>
-										<option>mg</option>
-										<option>qty</option>
-										<option>lbs</option>
-									</select>
-								</div>
 							</div>
 						</div>
                     </div>

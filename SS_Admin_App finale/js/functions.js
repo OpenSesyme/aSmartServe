@@ -456,6 +456,9 @@ function loadMenuItems (subCategory){
         Unavailable = "selected";
       }
 			var html = '<div class="item">\
+                    <div class="add-ingredients">\
+                      <button type="button" id="viewAddIngredients" class="add-ingred-btn">Ingredients</button>\
+                    </div>\
 		        			<h3>'+name+'</h3>\
         					<p>'+description+'</p>\
         					<div class="price-and-edit">\

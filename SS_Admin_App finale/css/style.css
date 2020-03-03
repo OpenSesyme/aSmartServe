@@ -305,6 +305,33 @@ body {
 	position: relative;
 }
 
+#ss_admin_menu .content .menu-items .item .add-ingredients {
+	position: absolute;
+	right: 0;
+	opacity: 0;
+}
+
+#ss_admin_menu .content .menu-items .item:hover .add-ingredients {
+	opacity: 1;
+	transition: 1s ease;
+}
+
+#ss_admin_menu .content .menu-items .item .add-ingredients button {
+	background-color: #222;
+	top: 60px;
+	border-radius: 50px 0 0 50px ;
+	width: 100px;
+    height: 40px;
+    position: relative;
+    color: #fff;
+    box-shadow: 1px 3px 4px 0 rgb(0,0,0,0.20);
+}
+
+#ss_admin_menu .content .menu-items .item .add-ingredients button:hover {
+	background-color: #369;
+	color: #fff;
+}
+
 #ss_admin_menu .content .menu-items .item h3 {
 	margin-top: 10px;
 	margin-bottom: 10px;
@@ -1030,6 +1057,7 @@ body {
 	color: #fff;
 }
 
+
 @media screen and (max-width: 760px) {
 	#ss_nav .navbar .navbar-header .navbar-brand a {
 		font-size: 18px;
@@ -1637,6 +1665,7 @@ body {
 
 #inventory .content .modal-content .edit-item {
 	margin-top: 20px;
+	padding: 0 3em;
 }
 
 #inventory .content .modal-content .edit-item .subtracting-item {
@@ -1646,10 +1675,7 @@ body {
 }
 
 #inventory .content .modal-content .edit-item .adding-new-item {
-	background-color: rgb(0,128,0,0.4);
-	padding: 0.5em;
-	border-radius: 5px;
-	margin-top: 10px;
+	
 }
 
 #inventory .content .modal-content .add-category {

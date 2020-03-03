@@ -146,6 +146,31 @@
                     </form>
                 </div>
             </div><!-- End Adding category modal -->
+
+
+            <!-- ==========================================================
+                                Adding Ingredients
+            ========================================================== -->
+            <div id="addIngredients" class="modal">
+                <div class="modal-content">
+                    <span id="closeIngredients" class="close">&times;</span>
+                    <h3 class="w3-center" style="margin: 0">Add //Item Name// Ingredients</h3>
+                    <div class="add-ingredient">
+                        Thysdusoud sdjsds jsdsnjdsdjs  sndsnl ldns ss s ssd sslkjss sls ds ssdn ssds dssslskd sdssd lsds ndsdslksd lsd ssksd lsdskddlkssklsdnksldks dsdksk lsdsls ds dsl sdslsndlkskd ldsdksds lsdl
+                    </div>
+
+                    <div class="added-ingredients">
+                        
+                    </div>
+
+                    <div class="footer">
+                        <div class="footer-btns">
+                            <button type="button" class="cancel">Cancel</button>
+                            <button type="button" class="done-adding-categs">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 	    </div>
     </section>
 
@@ -157,5 +182,17 @@
     <script type="text/javascript" src="../js/main.js"></script>
     <script type="text/javascript" src="../js/dialog.js"></script>
     <script type="text/javascript" src="../js/functions.js"></script>
+    <script type="text/javascript">
+        $('#viewAddIngredients').on('click', function(){
+            var modal = document.getElementById("addIngredients");
+            modal.style.display = "block";
+
+            window.onclick = function(event) {
+                if(event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        });
+    </script>
 </body>
 </html>
