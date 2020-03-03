@@ -1064,7 +1064,7 @@ $('#item-measure').on('keyup', function(){
 	}
 	$('#item-total').empty();
 	total = measure * qty;
-	if(units == "l" || units == "ml"){
+	if(units == "l" || units == "ml" || units == "qty"){
 		total = "";
 	}else{
 		total = measure * qty +" "+units;
@@ -1077,7 +1077,7 @@ $('#item-quantity').on('keyup', function(){
 	if(isNaN(qty)){
 		qty = 0;
 	}
-	if(units == "l" || units == "ml"){
+	if(units == "l" || units == "ml" || units == "qty"){
 		total = "";
 	}else{
 		total = measure * qty+" "+units;
