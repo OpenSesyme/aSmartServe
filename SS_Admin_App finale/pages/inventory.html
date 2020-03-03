@@ -213,17 +213,22 @@
                     	</div>
 
                 		<div class="row" style="margin-bottom: 10px">
-							<div class="col-sm-8">
+							<div class="col-sm-6">
 								<input type="text" class="form-control" placeholder="Name of the item">
 							</div>
-							<div class="col-sm-4">
-								<select name="measurements" class="form-control">
-									<option selected disabled>- Select Measurements -</option>
-									<option>Kg</option>
-									<option>mg</option>
-									<option>qty</option>
-									<option>lbs</option>
-								</select>
+                            
+							<div class="col-sm-6">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Category Name" id="category-name">
+                                    <span class="input-group-btn" style="width: 25%;">
+                                        <select name="unit-per-item" class="form-control">
+                                            <option>Kg</option>
+                                            <option>mg</option>
+                                            <option>qty</option>
+                                            <option>lbs</option>
+                                        </select>
+                                    </span>
+                                </div>
 							</div>
 						</div>
 						<h3 class="text-center" id="h3_remaining">Remaining <span>302 units</span></h3>
@@ -246,21 +251,12 @@
 						</div>
 
 						<div class="adding-new-item" id="add_units">
-							<h4>First Items</h4>
 							<div class="row">
-							  	<div class="col-sm-8">
-							  		<input type="text" class="form-control" placeholder="How many item are bought?">	
+							  	<div class="col-sm-12">
+							  		<input type="number" class="form-control" placeholder="Quantity">	
 							  	</div>
-							  	<div class="col-sm-4">
-									<select name="measurements" class="form-control">
-										<option selected disabled>- Select Measurements -</option>
-										<option>Kg</option>
-										<option>mg</option>
-										<option>qty</option>
-										<option>lbs</option>
-									</select>
-								</div>
 							</div>
+                            <h3 class="w3-center" style="margin-top: 20px">The Number will go here</h3>
 						</div>
                     </div>
 
