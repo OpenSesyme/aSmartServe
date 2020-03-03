@@ -154,31 +154,24 @@
             <div id="addIngredients" class="modal">
                 <div class="modal-content">
                     <span id="closeIngredients" class="close">&times;</span>
-                    <h3 class="w3-center" style="margin: 0">Add //Item Name// Ingredients</h3>
+                    <h3 id="ingred_popup_title" class="w3-center" style="margin: 0"> Ingredients</h3>
                     <div class="add-ingredient">
                         <div class="row" style="margin-bottom: 10px">
                             <div class="col-sm-4">
-                                <select id="categories" class="form-control">
+                                <select id="ingred_categories" class="form-control">
                                     <option selected disabled>- Select Category -</option>
                                 </select>
                             </div>
                             <div class="col-sm-4">
-                                <select name="units" class="form-control">
+                                <select name="units" class="form-control" id="ingredient_select">
                                     <option selected disabled>- Select Ingredient -</option>
-                                    <option>mg</option>
-                                    <option>qty</option>
-                                    <option>lbs</option>
                                 </select>
                             </div>
                             <div class="col-sm-4">
                                 <div class="input-group" style="width: 100%">
-                                    <input type="number" class="form-control" placeholder="Quantity" style="border-radius: 5px 0 0 5px">
+                                    <input id="ingred_qty" type="number" class="form-control" placeholder="Quantity" style="border-radius: 5px 0 0 5px">
                                     <span class="input-group-btn" style="width: 35%;">
-                                        <select name="units" class="form-control" style="border-radius: 0 5px 5px 0">
-                                            <option>Kg</option>
-                                            <option>mg</option>
-                                            <option>qty</option>
-                                            <option>lbs</option>
+                                        <select id="ingred_units" name="units" class="form-control" style="border-radius: 0 5px 5px 0">
                                         </select>
                                     </span>
                                 </div>

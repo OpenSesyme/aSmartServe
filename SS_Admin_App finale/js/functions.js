@@ -31,6 +31,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 const Inventory = db.collection("LaPiazzaInventory");
+const MenuRef = db.collection("LaPiazzaMenu");
 
 
 /*=====================================
@@ -409,7 +410,7 @@ function preparePopupCategories (){
 }
 
 function loadMainCategories(){
-  db.collection("LaPiazzaMenu").doc("categories").get().then((doc) =>{
+  MenuRef.doc("categories").get().then((doc) =>{
     mainCategories = doc.get("categories");
     for (var i = 0; i < mainCategories.length; i++) {
       var category = mainCategories[i];
@@ -441,7 +442,7 @@ function loadSubCategories (mainCategory, parent){
 }
 
 function loadMenuItems (subCategory){
-	db.collection("LaPiazzaMenu").where("subCate", "==", subCategory).onSnapshot(function(querySnapshot) {
+	MenuRef.where("subCate", "==", subCategory).onSnapshot(function(querySnapshot) {
 		$('#menuItems').empty();
 		querySnapshot.forEach((doc) =>{
 			var name = doc.get("name");
@@ -468,7 +469,7 @@ function loadMenuItems (subCategory){
 								  <option '+Unavailable+'>Unavailable</option>\
 								</select>\
         						<a class="edit-item">Edit</a>\
-        						<p hidden>'+doc.id+'</p>\
+        						<p hidden id="doc_id">'+doc.id+'</p>\
 		        			</div>\
                   			<button class="remove-item-btn"><i class="fa fa-times"></i></button>\
         				</div>'
@@ -479,6 +480,42 @@ function loadMenuItems (subCategory){
 	$('#menuItems').on('click', '#viewAddIngredients', function(){
         var modal = document.getElementById("addIngredients");
         modal.style.display = "block";
+        const itemName = $(this).closest('.item').find('h3').text();
+        const itemId = $(this).closest('.item').find('#doc_id').text(); 
+        $('#ingred_popup_title').text(itemName + " Ingredients");
+        var ingredients = [];
+        showLoader();
+
+        MenuRef.doc(itemId).get().then((menuitem) =>{
+        	ingredients = menuitem.data().ingredients;
+        	if (ingredients != null) {
+        		for (var i = 0; i < ingredients.length; i++) {
+	        		var ingredient = ingredients[i];
+	        		var Ingredient = `<li>
+		                                <h4>
+		                                    <span class="qty-added">${ingredient.quantity}</span>
+		                                    <span class="units-added">${ingredient.units}</span> of 
+		                                    <span class="ingred-added">${ingredient.name}</span> added in 
+		                                    <span>${itemName}</span>
+
+		                                    <span class="w3-right remove-added-ingred">X</span>
+		                                </h4>
+		                            </li>`;
+		            $('#ingredients_list').append(Ingredient);
+	        	}
+        	}
+        	hideLoader();
+        });
+
+        Inventory.doc("Categories").get().then((doc) =>{
+        	$('#ingred_categories').empty();
+        	$('#ingred_categories').append(`<option selected disabled>- Select Category -</option>`);
+        	var categories = doc.data().categories;
+        	for (var i = 0; i < categories.length; i++) {
+        		var category = categories[i];
+        		$('#ingred_categories').append(new Option(category, category));
+        	}
+        })
 
         window.onclick = function(event) {
             if(event.target == modal) {
@@ -494,20 +531,98 @@ function loadMenuItems (subCategory){
             modal.style.display = "none";
         });
 
+        $('#ingred_categories').on('change', function(){
+        	var category = $(this).val();
+        	Inventory.where("category", "==", category).get().then((snapshots) =>{
+        		$('#ingredient_select').empty();
+        		$('#ingredient_select').append(`<option selected disabled>- Select Ingredient -</option>`);	
+        		snapshots.forEach((ingredient) =>{
+        			const name = ingredient.data().name;
+        			const id = ingredient.id;
+        			$('#ingredient_select').append(new Option(name, id));
+        		});
+        	});
+        });
+
+        $('#ingredient_select').on('change', function(){
+        	var id = $(this).val();
+        	const massUnits = ["kg", "g", "mg"];
+        	const liquidUnits = ["kl", "l", "ml"];
+        	Inventory.doc(id).get().then((doc) =>{
+        		var units = doc.data().units;
+        		$('#ingred_units').empty();
+        		if (massUnits.includes(units)) {
+        			for (var i = massUnits.length - 1; i >= 0; i--) {
+        				var unit = massUnits[i];
+        				$('#ingred_units').append(new Option(unit, unit));
+        			}
+        		}else if (liquidUnits.includes(units)){
+        			for (var i = liquidUnits.length - 1; i >= 0; i--) {
+        				var unit = liquidUnits[i];
+        				$('#ingred_units').append(new Option(unit, unit));
+        			}
+        		}else{
+        			$('#ingred_units').append(new Option("qty", "qty"));
+        		}
+        	})
+        })
+
         $('.add-ingred-btn').on('click', function(){
+        	var ingred_id = $('#ingredient_select').val();
+        	var units = $( "#ingred_units option:selected" ).text();
+        	var name = $( "#ingredient_select option:selected" ).text();
+        	var qty = $( "#ingred_qty" ).val();
         	var Ingredient = `<li>
                                 <h4>
-                                    <span class="qty-added">200</span>
-                                    <span class="units-added">kg</span> of 
-                                    <span class="ingred-added">Ingredient</span> added in 
-                                    <span>Item Name</span>
+                                    <span class="qty-added">${qty}</span>
+                                    <span class="units-added">${units}</span> of 
+                                    <span class="ingred-added">${name}</span> added in 
+                                    <span>${itemName}</span>
 
                                     <span class="w3-right remove-added-ingred">X</span>
                                 </h4>
+                                <p hidden id="ingred_id">${ingred_id}</p>
                             </li>`;
             $('#ingredients_list').append(Ingredient);
-        })
+            $( "#ingred_qty" ).val('');
+        });
+
+        $('#ingredients_list').on('click', '.remove-added-ingred', function(){
+        	$(this).closest('li').remove();
+        });
+
+        $('.done-adding-ingred').on('click', function(){
+        	var children = $('#ingredients_list').children();
+        	var newIngredients = [];
+        	for (var i = children.length - 1; i >= 0; i--) {
+        		var child = children[i];
+        		var name = $(child).find('.ingred-added').text();
+        		var qty = $(child).find('.qty-added').text();
+        		var units = $(child).find('.units-added').text();
+        		var id = $(child).find('#ingred_id').text();
+        		var ingredient = {name: name, qty: qty, units: units, id: id};
+        		newIngredients.push(ingredient);
+        	}
+        	if (!arraysEqual(ingredients, newIngredients)) {
+        		showLoader();
+        		MenuRef.doc(itemId).update({ingredients: newIngredients}).then(() =>{
+        			hideLoader();
+        			modal.style.display = "none";
+        		});
+        	}
+        });
     });
+
+	function arraysEqual(arr1, arr2) {
+	    if(arr1.length !== arr2.length)
+	        return false;
+	    for(var i = arr1.length; i--;) {
+	        if(arr1[i] !== arr2[i])
+	            return false;
+	    }
+
+	    return true;
+	}
 }
 
 /*================================================================================
@@ -1333,4 +1448,34 @@ function convert(value, fromUnit, toUnit){
 	}
 
 	return returnValue;
+}
+
+/*==========================================
+				Multi Page
+==========================================*/
+function showLoader(){
+	var loaderHtml = '<div id="loader"><div></div><h4 id="progress"></h4></div>';
+	if ($('body').find('#loader').length == 0) {
+		$('body').append(loaderHtml);
+	}
+	$("#loader").addClass("loader");
+}
+
+function hideLoader(){
+	$("#loader").removeClass("loader");
+}
+
+function showSnackbar(text){
+	var snackbarHtml = '<div id="snackbar">'+text+'</div>';
+	if ($('body').find('#snackbar').length == 0) {
+		$('body').append(snackbarHtml);
+	}else{
+		$('#snackbar').text(text);
+	}
+
+	var x = document.getElementById("snackbar");
+
+	x.className = "show";
+
+	setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
