@@ -955,7 +955,7 @@ function loadInventory (){
 //load Inventory page
 
 //------------------------- INVOKE --------------------------
-  $('#viewItemHistory').on('click', function(){
+  $('.invetory-items').on('click', '#viewItemHistory', function(){
     var modal = document.getElementById("itemHistory");
     modal.style.display = "block";
 
@@ -966,7 +966,7 @@ function loadInventory (){
     }
   });
 
-$('#viewRefill').on('click', function(){
+$('.invetory-items').on('click', '#viewRefill', function(){
     var modal = document.getElementById("refillItem");
     modal.style.display = "block";
 
@@ -977,7 +977,7 @@ $('#viewRefill').on('click', function(){
     }
 });
 
-$('#viewEdit').on('click', function(){
+$('.invetory-items').on('click', '#viewEdit', function(){
     var modal = document.getElementById("editItem");
     $('#h3_add').hide();
     $('#add_units').hide();
@@ -1029,7 +1029,7 @@ $('#closeEdit').on('click', function(){
 	modal.style.display = "none";
 });
 //------------------------ ADD ----------------------------------
-
+//=====================[CATEGORY]================================
 $('#add-category').on('click', function(e){
 	e.preventDefault();
 	var categName = $('#category-name').val().trim();
@@ -1071,6 +1071,122 @@ $('#add-category').on('click', function(e){
 	}else{
 	addCategStatus.style.color = "#800000";
 	addCategStatus.innerHTML = "You need to add atleast 3 letters";
+	}
+});
+
+//========================[ITEM]================================
+
+var measure = 0;
+var qty = 1;
+var total = 0;
+var units = "kg";
+$('#item-total').text(total);	
+
+$('#item-units').change(function(){
+	units = $('#item-units').val();
+	$('#item-total').empty();
+	$('#item-total').text("");
+	console.log(SignedUser);
+	
+});
+
+$('#item-measure').on('keyup', function(){
+	measure = $('#item-measure').val();
+	if(isNaN(measure)){
+		measure = 0;
+	}
+	$('#item-total').empty();
+	total = measure * qty;
+	if(units == "l" || units == "ml" || units == "qty"){
+		total = "";
+	}else{
+		total = measure * qty +" "+units;
+	}
+	$('#item-total').text(total);
+});
+
+$('#item-quantity').on('keyup', function(){
+	qty = $('#item-quantity').val();
+	if(isNaN(qty)){
+		qty = 0;
+	}
+	if(units == "l" || units == "ml" || units == "qty"){
+		total = "";
+	}else{
+		total = measure * qty+" "+units;
+	}
+	$('#item-total').text(total);
+});
+
+$('#add-item').on('click', function(e){
+	e.preventDefault();
+	var error = null;
+	var itemName = $('#item-name').val();
+	var itemCategory = $('#item-category').val();
+	var itemUnits = $('#item-units').val();
+	var itemMeasure = $('#item-measure').val();
+	var itemQuantity = $('#item-quantity').val();
+
+	if(itemCategory != null){
+		if(itemName != null && itemName.length > 2){
+			if(itemQuantity != null && itemQuantity > 0){
+				var docName = itemName+" "+itemMeasure+itemUnits;
+				var arrayOfObject = [];
+				var person = SignedUser.name;
+				var lrDate = new Date();
+				var lrChange = "";
+				var lrTotal = 0;
+				var lrReason = "Adding new item";
+				if(itemUnits == "qty"){
+					docName = itemName;
+				}
+
+				if(itemUnits == "qty" || itemUnits == "ml" || itemUnits == "l"){
+					lrTotal = itemQuantity;
+				}else{
+					if(itemMeasure != null && itemMeasure > 0){
+						lrTotal = itemMeasure * itemQuantity;
+					}
+				}
+
+				lrChange = "+"+lrTotal;
+				var obj = {
+							person: person, 
+							lrDate: lrDate, 
+							lrChange: lrChange, 
+							lrTotal: lrTotal, 
+							lrReason: lrReason
+				};
+				console.log(obj);
+				
+				arrayOfObject.push(obj);
+
+				Inventory.doc(docName).set({
+					category: itemCategory,
+					name: itemName,
+					units: itemUnits,
+					Refils: arrayOfObject,
+					remainingItems: lrTotal
+
+				}).then(function(){
+					console.log("data added succefully");
+				}).catch(function(error){
+					console.error(error);
+				});
+			}else{
+				error = "Item Quantity be a number greater than zero";
+			}
+		}else{
+			error = "Item name should be characters greater than 2";
+		}
+	}else{
+		error = "Item Category should be selected";
+	}
+
+	if(error != null){
+		$('#item-add-status').html(error);
+	}else{
+		$('#item-add-status').html("");
 	}
 });
 
@@ -1120,16 +1236,16 @@ function getSideNav(){
 function getDropCategs(){
 	Inventory.doc("Categories").onSnapshot(function(categories){
 		var categs = categories.get("categories");
-		$('.add-edit-item #categories').empty();
+		$('.add-edit-item #item-category').empty();
 		if(categs != null){
 			var html = `<option selected disabled>- Select Category -</option>`;
-			$('.add-edit-item #categories').append(html);
+			$('.add-edit-item #item-category').append(html);
 			for(var i = 0; i < categs.length; i++){
 				var html = `<option>${categs[i]}</option>`;
-				$('.add-edit-item #categories').append(html);
+				$('.add-edit-item #item-category').append(html);
 			}
 		}else{
-			$('.add-edit-item #categories').append("<option>No categories</option>");
+			$('.add-edit-item #item-category').append("<option>No categories</option>");
 		}
 	});
 }
@@ -1137,28 +1253,57 @@ function getDropCategs(){
 function getItems(){
 	$('.invetory-items').empty();
 
-	var html = `<div class="item">
-					<div class="overlay">
-						<button type="button" class="remove-item w3-right"><i class="fa fa-trash-o"></i></button>
-						<div class="action-btns align-middle text-center">
-							<button type="button" class="history" id="viewItemHistory">i</button>
-							<button type="button" id="viewRefill">Refill</button>
-							<button type="button" id="viewEdit">Edit</button>
-						</div>
-					</div>
-					<div class="item-content">
-						<h4><span class="last-update-date">15/03/2020</span></h4>
-						<div class="name-and-remaining">
-							<div class="col-12">
-								<h2 class="text-center">${category}</h2>
+	Inventory.where("category", "==", category).onSnapshot(function(snapshots){	
+		$('.invetory-items').empty();
+		
+		if(snapshots.size > 0){
+			snapshots.forEach(function(item){
+				var name = item.id;
+				var data = item.data();
+
+				var arr = item.get("Refils");
+				var lastRefillDate = moment(arr[arr.length - 1].lrDate.toDate()).format('DD/MM/YYYY');
+				var lastRefilTotal = arr[arr.length - 1].lrTotal;
+				var remainingItems = data.remainingItems;
+				var html = `<div class="item">
+								<div class="overlay">
+									<button type="button" class="remove-item w3-right"><i class="fa fa-trash-o"></i></button>
+									<div class="action-btns align-middle text-center">
+										<button type="button" class="history" id="viewItemHistory">i</button>
+										<button type="button" id="viewRefill">Refill</button>
+										<button type="button" id="viewEdit">Edit</button>
+									</div>
+								</div>
+								<div class="item-content">
+									<h4><span class="last-update-date">${lastRefillDate}</span></h4>
+									<div class="name-and-remaining">
+										<div class="col-12">
+											<h2 class="text-center">${name}</h2>
+										</div>
+										<div class="col-12 text-center">
+											<p class="item-remaining">${remainingItems} of ${lastRefilTotal}</p>
+										</div>
+									</div>
+								</div>
+							</div>`;
+				$('.invetory-items').append(html);
+			});
+		}else{
+			$('.invetory-items').empty();
+			var html = `<div class="item">
+							<div class="item-content">
+								
+								<div class="name-and-remaining">
+									<div class="col-12">
+										<h2 class="text-center">No items</h2>
+									</div>
+								</div>
 							</div>
-							<div class="col-12 text-center">
-								<p class="item-remaining">64 of 232</p>
-							</div>
-						</div>
-					</div>
-				</div>`;
-	$('.invetory-items').append(html);
+						</div>`;
+		$('.invetory-items').append(html);
+		}
+	});
+
 }
 
 function convert(value, fromUnit, toUnit){
