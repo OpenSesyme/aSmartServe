@@ -202,30 +202,31 @@
         	<div id="editItem" class="modal add-edit-item">
                 <div class="modal-content">
                     <span id="closeEdit" class="close">&times;</span>
-                    <h3 class="w3-center" style="margin: 0" id="h3_edit">Edit Item</h3>
                     <h3 class="w3-center" style="margin: 0" id="h3_add">Add Item</h3>
                     <div class="edit-item">
                     	<div class="row" style="margin-bottom: 10px">
                     		<div class="col-sm-12">
-                    			<select id="categories" class="form-control">
+                    			<select id="item-category" class="form-control">
 								</select>
                     		</div>
                     	</div>
 
                 		<div class="row" style="margin-bottom: 10px">
 							<div class="col-sm-6">
-								<input type="text" class="form-control" placeholder="Name of the item">
+								<input type="text" class="form-control" placeholder="Name of the item" id="item-name">
 							</div>
                             
 							<div class="col-sm-6">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Category Name" id="category-name">
+                                    <input type="text" class="form-control" placeholder="measurements / unit" id="item-measure">
                                     <span class="input-group-btn" style="width: 25%;">
-                                        <select name="unit-per-item" class="form-control">
-                                            <option>Kg</option>
+                                        <select name="unit-per-item" class="form-control" id="item-units">
+                                            <option>kg</option>
                                             <option>mg</option>
                                             <option>qty</option>
                                             <option>lbs</option>
+                                            <option>l</option>
+                                            <option>ml</option>
                                         </select>
                                     </span>
                                 </div>
@@ -241,7 +242,7 @@
 							  	<div class="col-sm-4">
 									<select name="measurements" class="form-control">
 										<option selected disabled>- Select Measurements -</option>
-										<option>Kg</option>
+										<option>kg</option>
 										<option>mg</option>
 										<option>qty</option>
 										<option>lbs</option>
@@ -253,17 +254,20 @@
 						<div class="adding-new-item" id="add_units">
 							<div class="row">
 							  	<div class="col-sm-12">
-							  		<input type="number" class="form-control" placeholder="Quantity">	
+							  		<input type="number" id="item-quantity" class="form-control" placeholder="Quantity">	
 							  	</div>
 							</div>
-                            <h3 class="w3-center" style="margin-top: 20px">The Number will go here</h3>
-						</div>
+                            <h3 class="w3-center" style="margin-top: 20px" id="item-total"></h3>
+                        </div>
+                        <div class="row text-center" id="item-add-status">
+
+                        </div>
                     </div>
 
                     <div class="footer">
                     	<div class="footer-btns">
                     		<button type="button" class="cancel" id="closeEdit">Cancel</button>
-                    		<button type="button" class="update-Item">Update</button>
+                    		<button type="button" class="update-Item" id="add-item">Add Item</button>
                     	</div>
                     </div>
                 </div>
@@ -279,6 +283,7 @@
     <script type="text/javascript" src="../js/main.js"></script>
     <script type="text/javascript" src="../js/dialog.js"></script>
     <script type="text/javascript" src="../js/functions.js"></script>
+    <script type="text/javascript" src="../js/moments.js"></script>
     <!-- <script type="text/javascript">
 		// var modalClose = document.getElementById("closeAddCategory");
 		// modalClose.style.display = "none";
