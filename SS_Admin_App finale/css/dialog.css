@@ -1,0 +1,77 @@
+.dlg-dialog {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    border: none;
+    min-width: 300px;
+    background-color: #fff;
+    color: #222;
+    max-width: 100%;
+    box-shadow:0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);
+    padding: 0;
+    overflow: hidden;
+}
+
+.dlg-header {
+    padding: .5em;
+    background-color: #336699;
+    color: #fff;
+}
+
+.dlg-caption {
+    font-size: 1.17em;
+    margin: 0;
+    padding-right: 2em;
+}
+
+.dlg-close-button {
+    position: absolute;
+    right: .5em;
+    top: .5em;
+    width: 1.17em;
+    height: 1.17em;
+    cursor: pointer;
+}
+
+.dlg-close-button::before {
+    transform: rotate(45deg);
+}
+
+.dlg-close-button::after{
+    transform: rotate(-45deg);
+}
+
+.dlg-close-button::before,
+.dlg-close-button::after {
+    content: '';
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    top: 50%;
+    left:0;
+    background-color: tomato;
+}
+
+.dlg-body {
+    padding: .5em;
+}
+
+.dlg-content {
+    padding: .5em;
+    overflow: auto;
+}
+
+.dlg-button-area {
+    padding: 0 .5em;
+    text-align: right;
+}
+
+.dlg-button-area button {
+    padding: .3em .4em;
+    margin-left: 1em;
+    width: 5em;
+    color: #fff;
+    background-color: #222;
+    border: none;
+    text-align: center;
+}

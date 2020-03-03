@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartServe | Admin</title>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../css/w3.css">
+    <link rel="stylesheet" type="text/css" href="../css/animate.css">
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../css/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dialog.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+</head>
+<body>
+	<div id="ss_nav">
+        <nav class="navbar navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <div class="navbar-brand"><a href="#">SmartServe</a></div>
+                </div>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                    	<div>
+							<button  id="signed_user" class="btn navbar-btn" type="button">
+						</div>
+                    </li> 
+                    <li>
+                        <a href="login.html"><i class="fa fa-power-off"></i></a>
+                    </li> 
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <section id="ss_staff_table">
+    	<div class="container" >
+	    	<div id="table" class="table-editable">
+			    <i class="table-add fa fa-plus fa-2x"></i>
+			    <table id="employees_table" class="table">
+			      	<tr>
+			        	<th style="width: 150px">Full Name</th>
+			        	<th style="width: 80px">Position</th>
+			        	<th style="width: 150px">Password</th>
+			        	<th class="w3-hide-small">Cell Number</th>
+			        	<th></th>
+			      	</tr>
+			    </table>
+			</div>
+		</div>
+    </section>
+
+    <div class="ss_back_btn">
+        <a href="../index.html" class="w3-card">
+            <i class="fa fa-arrow-left"></i>
+            <span class="nav-text">
+                Back
+            </span>
+        </a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-firestore.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.3.5/js/swiper.min.js'></script>
+    <script type="text/javascript" src="../js/main.js"></script>
+    <script type="text/javascript" src="../js/dialog.js"></script>
+    <script type="text/javascript" src="../js/functions.js"></script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartServe | Admin</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../css/w3.css">
+    <link rel="stylesheet" type="text/css" href="../css/animate.css">
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../css/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dialog.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+	<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+</head>
+<body>
+	<div id="ss_nav">
+        <nav class="navbar navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <div class="navbar-brand"><a href="#">SmartServe</a></div>
+                </div>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <div>
+                            <button  id="signed_user" class="btn navbar-btn" type="button"></button>
+                        </div>
+                    </li> 
+                    <li>
+                        <a href="login.html"><i class="fa fa-power-off"></i></a>
+                    </li> 
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <section id="inventory">
+    	<nav class="main-menu">
+            <ul>
+                <li>
+                    <a class="active-bg">
+                        <i class="fa fa-home fa-2x"></i>
+                        <span class="nav-text">
+                           Categories
+                        </span>
+                        <span class="w3-right" style="background-color: #336699; width: 40px; cursor: pointer;" id="viewAddCategory"><i class="fa fa-plus"></i></span>
+                    </a>
+                    <ul id="inventory_categories">
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="logout">
+                <li>
+                   <a href="../index.html">
+                         <i class="fa fa-arrow-left fa-2x"></i>
+                        <span class="nav-text">
+                            Back
+                        </span>
+                    </a>
+                </li>  
+            </ul>
+        </nav>
+
+        <div class="content">
+        	<div class="header">
+        		Categories / <span id="main_name"> </span> 
+        		<a class="w3-right" id="add_inventory_item">Add Item</a>
+        	</div>
+        	<div class="invetory-items">
+
+        	</div>
+
+        	<!-- =============================================================================
+        				++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        								Adding Category Modal
+        				++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        	============================================================================== -->
+        	<div id="addInventoryCategory" class="modal">
+                <div class="modal-content">
+                    <span id="closeAddCategory" class="close">&times;</span>
+                    <h3 class="w3-center" style="margin: 0">Add Category</h3>
+                    <div class="add-category">
+                    	<h4 class="w3-center" style="color: #008000"></h4>
+                    	<div class="row" style="margin-top: 20px">
+                    		<div class="col-sm-12">
+                    			<div class="input-group">
+									<input type="text" class="form-control" placeholder="Category Name" id="category-name">
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="button" id="add-category"><i class="fa fa-plus"></i></button>
+									</span>
+								</div>
+                    		</div>
+                    	</div>
+                    </div>
+
+                    <div class="footer">
+                    	<div class="footer-btns">
+                    		<button type="button" class="cancel" id="closeAddCategory">Cancel</button>
+                    		<button type="button" class="done-adding-categs">Done</button>
+                    	</div>
+                    </div>
+                </div>
+            </div>
+
+
+        	<!-- =============================================================================
+        				++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        								Item History Modal
+        				++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        	============================================================================== -->
+        	<div id="itemHistory" class="modal">
+                <div class="modal-content">
+                    <span id="closeHistory" class="close">&times;</span>
+                    <h3 class="w3-center" style="margin: 0">Open Sesyme History</h3>
+                    <div class="history">
+                    	<h4>Month Opening 
+                    		<span class="date" style="color: #336699">(15 Feb)</span>
+                    		<span class="w3-right">156</span>
+                    	</h4>
+                    	<ul class="list-unstyled">
+                    		<li>
+                    			<table class="table">
+									<tbody>
+										<tr>
+											<td>Tukela</td>
+											<td class="date">23 Feb</td>
+											<td><span class="added">+29</span></td>
+										</tr>
+										<tr>
+											<td>Joyce</td>
+											<td class="date">24 Feb</td>
+											<td><span class="loss">-13</span></td>
+										</tr>
+										<tr>
+											<td>Mayne</td>
+											<td class="date">27 Feb</td>
+											<td><span class="added">+81</span></td>
+										</tr>
+									</tbody>
+								</table>
+                    		</li>
+                    	</ul>
+                    </div>
+
+                    <div class="footer">
+                    	<div class="available">
+                    		<h1>Available <span class="w3-right">194</span></h1>
+                    	</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =============================================================================
+        				++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        								Refill Item Modal
+        				++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        	============================================================================== -->
+        	<div id="refillItem" class="modal">
+                <div class="modal-content">
+                    <span id="closeHistory" class="close">&times;</span>
+                    <h3 class="w3-center" style="margin: 0">Refill</h3>
+                    <div class="item-refilling">
+                    	<div class="remaining">
+                    		<h4>Open Sesyme</h4>
+                    		<small class="blinking">Remaining <span>43 units</span></small>
+                    	</div>
+                    	<div class="row">
+							<div class="col-sm-8">
+								<input type="number" class="form-control" placeholder="Enter number" value="1762">
+							</div>
+							<div class="col-sm-4">
+								<select name="cars" class="form-control">
+									<option selected disabled>- select measurements -</option>
+									<option>Kg</option>
+									<option>mg</option>
+									<option>qty</option>
+									<option>lbs</option>
+								</select>
+							</div>
+						</div>
+						<div class="total">
+							<h3>Total <span>1897</span></h3>
+						</div>
+                    </div>
+
+                    <div class="footer">
+                    	<div class="footer-btns">
+                    		<button type="button" class="cancel">Cancel</button>
+                    		<button type="button" class="add-refill">Add</button>
+                    	</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =============================================================================
+        				++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        								Edit and Add Item Modal
+        				++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        	============================================================================== -->
+        	<div id="editItem" class="modal add-edit-item">
+                <div class="modal-content">
+                    <span id="closeEdit" class="close">&times;</span>
+                    <h3 class="w3-center" style="margin: 0" id="h3_edit">Edit Item</h3>
+                    <h3 class="w3-center" style="margin: 0" id="h3_add">Add Item</h3>
+                    <div class="edit-item">
+                    	<div class="row" style="margin-bottom: 10px">
+                    		<div class="col-sm-12">
+                    			<select id="categories" class="form-control">
+								</select>
+                    		</div>
+                    	</div>
+
+                		<div class="row" style="margin-bottom: 10px">
+							<div class="col-sm-8">
+								<input type="text" class="form-control" placeholder="Name of the item">
+							</div>
+							<div class="col-sm-4">
+								<select name="measurements" class="form-control">
+									<option selected disabled>- Select Measurements -</option>
+									<option>Kg</option>
+									<option>mg</option>
+									<option>qty</option>
+									<option>lbs</option>
+								</select>
+							</div>
+						</div>
+						<h3 class="text-center" id="h3_remaining">Remaining <span>302 units</span></h3>
+						<div class="subtracting-item" id="subtract_units">
+							<h4>Subtract Loss Item</h4>
+							<div class="row">
+							  	<div class="col-sm-8">
+							  		<input type="text" class="form-control" placeholder="How much are you subtracting?">	
+							  	</div>
+							  	<div class="col-sm-4">
+									<select name="measurements" class="form-control">
+										<option selected disabled>- Select Measurements -</option>
+										<option>Kg</option>
+										<option>mg</option>
+										<option>qty</option>
+										<option>lbs</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<div class="adding-new-item" id="add_units">
+							<h4>First Items</h4>
+							<div class="row">
+							  	<div class="col-sm-8">
+							  		<input type="text" class="form-control" placeholder="How many item are bought?">	
+							  	</div>
+							  	<div class="col-sm-4">
+									<select name="measurements" class="form-control">
+										<option selected disabled>- Select Measurements -</option>
+										<option>Kg</option>
+										<option>mg</option>
+										<option>qty</option>
+										<option>lbs</option>
+									</select>
+								</div>
+							</div>
+						</div>
+                    </div>
+
+                    <div class="footer">
+                    	<div class="footer-btns">
+                    		<button type="button" class="cancel" id="closeEdit">Cancel</button>
+                    		<button type="button" class="update-Item">Update</button>
+                    	</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-firestore.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.3.5/js/swiper.min.js'></script>
+    <script type="text/javascript" src="../js/main.js"></script>
+    <script type="text/javascript" src="../js/dialog.js"></script>
+    <script type="text/javascript" src="../js/functions.js"></script>
+    <!-- <script type="text/javascript">
+		// var modalClose = document.getElementById("closeAddCategory");
+		// modalClose.style.display = "none";
+		
+
+    </script> -->
+</body>
+</html>

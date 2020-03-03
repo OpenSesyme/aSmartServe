@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>SmartServe | Sales</title>
+    
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../css/w3.css">
+    <link rel="stylesheet" type="text/css" href="../css/animate.css">
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../css/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style type="text/css">
+        body {
+            padding-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div id="ss_nav">
+        <nav class="navbar navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <div class="navbar-brand"><a href="#">SmartServe</a></div>
+                </div>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <div>
+                            <button  id="signed_user" class="btn navbar-btn" type="button">
+                        </div>
+                    </li> 
+                    <li>
+                        <a href="login.html"><i class="fa fa-power-off"></i></a>
+                    </li> 
+                </ul>
+            </div>
+        </nav>
+    </div>
+    </div>
+
+    <section id="sales">
+        <div class="sidenav scrollbar">
+            <a class="daily-sales active-tab" id="day" style="cursor: pointer;"><i class="fa fa-clock-o"></i> Daily Sales</a>
+            <a class="total-sales" id="tsales" style="cursor: pointer;"><i class="fa fa-calendar"></i> Total Sales</a>
+            <a class="void-orders" id="voids" style="cursor: pointer;"><i class="fa fa-minus-circle"></i> Void Orders</a>
+            <a class="collapsible" style="cursor: pointer;"><i class="fa fa-users"></i>Waiter Sales</a>
+            <div class="content">
+                <ul id="waiters_list">
+                    <!-- Used to load waiters -->
+                </ul>
+
+                <div class="ss_back_btn">
+                    <a href="../index.html">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div id="daily">
+
+                <div class="tab-content">
+                    <div id="allItems" class="tab-pane fade in active">
+                        <select id="day_picker" name="limitOfTopItem" class="selectpicker" data-size="5" style="margin-top: 20px;">
+                            <option selected value="0">Today</option>
+                            <option value="1">Yesterday</option>
+                            <option value="2">2 days ago</option>
+                            <option value="3">3 days ago</option>
+                            <option value="4">4 days ago</option>
+                            <option value="5">5 days ago</option>
+                            <option value="6">6 days ago</option>
+                            <option value="7">7 days ago</option>
+                        </select>
+                        <div class="date w3-right" style="margin-top: 20px;">
+                            <span id="daily_total_date">22/12/2019</span>
+                        </div>
+                        <table class="table table-bordered table-striped" id="d_sales_table">
+                            <thead>
+                                <tr>
+                                    <th>Menu Item</th>
+                                    <th>Menu Categ</th>
+                                    <th>Item Qty</th>
+                                    <th>Gross Amount (R)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="font-weight: bolder;">
+                                    <td colspan="3">Total</td>
+                                    <td id="daily_total">R0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="totalSales">
+                <div class="tab-content">
+                    <div id="allItems" class="tab-pane fade in active">
+                        <select id="month_picker" name="limitOfTopItem" class="selectpicker" data-size="5" style="margin-top: 20px;">
+                            <option selected value="0">January</option>
+                            <option value="1">Fabruary</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                        <button id="save_pdf" class="w3-right">Save PDF</button>
+                        <table class="table table-bordered table-striped" id="m_sales_table">
+                            <!-- Used for monthly sales -->
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Day</th>
+                                    <th>Gross Amount (R)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="font-weight: bolder;">
+                                    <td colspan="2">Total</td>
+                                    <td id="monthly_total">00.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="voidedItem" class="items-voided" style="display: none;">
+                <table id="voided_item_table" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Item Quantity</th>
+                            <th>Date &amp; Time</th>
+                            <th>Table #</th>
+                            <th>Voider</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Loading void items -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="waiterSales">
+
+                <div class="tab-content">
+                    <div id="allItems" class="tab-pane fade in active">
+                        <table id="waiter_sales_table" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Menu Item</th>
+                                    <th>Menu Categ</th>
+                                    <th>Item Qty</th>
+                                    <th>Gross Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="font-weight: bolder;">
+                                    <td colspan="3">Total</td>
+                                    <td id="waiter_total"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Sales per table -->
+                <h3 class="w3-center">Served <span id="n_tables_served"></span> tables</h3>
+                <div id="sales_per_table"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-firestore.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.3.5/js/swiper.min.js'></script>
+    <script type="text/javascript" src="../js/main.js"></script>
+    <script type="text/javascript" src="../js/functions.js"></script>
+    <script src="../js/jspdf.min.js"></script>
+    <script src="../js/jspdf.plugin.autotable.min.js"></script>
+   <script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight){
+            content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+            } 
+        });
+    }
+
+    $(document).ready(function(){
+        $(".daily-sales").click(function(){
+            $('#daily').fadeIn("slow").show();
+            $('#day').addClass("active-tab")
+            $('#waiter').removeClass("active-tab");
+            $('#tsales').removeClass("active-tab");
+            $('#voids').removeClass("active-tab");
+            $('#totalSales').hide();
+            $('#waiterSales').hide();
+            $('#voidedItem').hide();
+        });
+
+        $(".total-sales").click(function(){
+            $('#totalSales').fadeIn("slow").show();
+            $('#waiter').removeClass("active-tab");
+            $('#voids').removeClass("active-tab");
+            $('#day').removeClass("active-tab");
+            $('#tsales').addClass("active-tab");
+            $('#daily').hide();
+            $('#waiterSales').hide();
+            $('#voidedItem').hide();
+        });
+
+        $(".void-orders").click(function(){
+            $('#voidedItem').fadeIn("slow").show();
+            $('#waiter').removeClass("active-tab");
+            $('#day').removeClass("active-tab");
+            $('#tsales').removeClass("active-tab");
+            $('#voids').addClass("active-tab");
+            $('#daily').hide();
+            $('#waiterSales').hide();
+            $('#totalSales').hide();
+        });
+
+        $(".waiter-sales").click(function(){
+            $('#waiterSales').fadeIn("slow").show();
+            $('#day').removeClass("active-tab");
+            $('#tsales').removeClass("active-tab");
+            $('#voids').removeClass("active-tab");
+            $('#waiter').addClass("active-tab");
+            $('#totalSales').hide();
+            $('#daily').hide();
+            $('#voidedItem').hide();
+        });
+    });
+    </script>
+</body>
+</html>

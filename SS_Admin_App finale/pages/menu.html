@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartServe | Admin</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../css/w3.css">
+    <link rel="stylesheet" type="text/css" href="../css/animate.css">
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../css/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dialog.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+</head>
+<body>
+	<div id="ss_nav">
+        <nav class="navbar navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <div class="navbar-brand"><a href="#">SmartServe</a></div>
+                </div>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <div>
+                            <button  id="signed_user" class="btn navbar-btn" type="button"></button>
+                        </div>
+                    </li> 
+                    <li>
+                        <a href="login.html"><i class="fa fa-power-off"></i></a>
+                    </li> 
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <section id="ss_admin_menu">
+		<nav class="main-menu">
+            <ul>
+                <li>
+                    <a class="active-bg">
+                        <i class="fa fa-home fa-2x"></i>
+                        <span class="nav-text">
+                            Menu
+                        </span>
+                        <span class="w3-right" style="background-color: #336699; width: 40px; cursor: pointer;" id="add_category"><i class="fa fa-plus"></i></span>
+                    </a>
+                    <ul id="main_categories">
+                    	<!-- Loading categories here -->
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="logout">
+                <li>
+                   <a href="../index.html">
+                         <i class="fa fa-arrow-left fa-2x"></i>
+                        <span class="nav-text">
+                            Back
+                        </span>
+                    </a>
+                </li>  
+            </ul>
+        </nav>
+
+        <div class="content">
+        	<div class="header">
+        		Menu / <span id="main_name">Ice Breakers </span>/ <span id="sub_name">Starters</span>
+        		<a href="#addItemPopup" class="w3-right" id="add_item_menu">Add Item</a>
+        	</div>
+
+        	<div class="menu-items" id="menuItems">
+        		<!-- Loading menu items here -->
+        	</div>
+        </div>
+        
+        <!-- This button is foe adding items and it only displays on mobile -->
+        <div class="mobile-add-btn w3-hide-large w3-hide-medium">
+            <a href="#addItemPopup" class="w3-right" id="add_item_menu" ><i class="fa fa-plus fa-2x"></i></a>
+        </div>
+
+        <div class="all-popups">
+	    	<div class="popup" id="addItemPopup">
+				<div class="popup-inner">
+					<form method="POST" action="#">
+						<div class="item-category">
+							<span class="current-cate">Menu / <span id="new_cat_name">Ice Breakers / Starters</span></span>
+							<div class="dropdowns w3-right">
+								<div class="menu-op">
+									<div class="menuitem" id="demo1">
+										<a>Change Category</a>
+										<div class="menu-op" id="popup_categories">
+											<!-- Loading categories in popup -->
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="item-details w3-row">
+							<div class="row">
+								<div class="col-sm-6">
+									<input id="item_name" type="text" name="itemName" placeholder="Item Name">
+								</div>
+								<div class="col-sm-6">
+									<input type="text" name="currency-field" id="currency-field" pattern="^\R\d{1,3}(,\d{3})*(\.\d+)?$" value="" data-type="currency" placeholder="R1,000,000.00">
+								</div>
+							</div>
+							<textarea id="description" name="itemDescription" placeholder="Item Description"></textarea>
+						</div>
+						<button type="button" id="submitItem" class="add-item-btn w3-right">Done</button>
+					</form>
+					<a class="popup-close" href="">X</a>
+				</div>
+			</div>
+
+
+            <!-- ==========================================================
+                                Adding a category modal 
+            ========================================================== -->
+            <div id="ss_addCategory" class="modal">
+                <div class="modal-content">
+                    <span id="close_category" class="close">&times;</span>
+                    <form method="POST" action="#">
+                        <div class="w3-row">
+                            <div class="w3-col" style="width:50%;">
+                                <select name="category" id="categories_select">
+                                    <!-- Loading Categories -->
+                                </select>
+                            </div>
+                            <div class="w3-col" style="width:50%;">
+                                <input type="text" name="newCategory" id="newCategory" placeholder="Write New Category">
+                            </div>
+                        </div>
+                        <div id="editable_sub_categories" class="subcategories">
+                            <div class="input-group">
+                                <input id="email" type="text" class="form-control" name="email" placeholder="New Subcategory">
+                                <span class="input-group-addon" ><i class="fa fa-plus"></i></span>
+                            </div>
+                        </div>
+
+                        <div class="add-categ-btn-container w3-center">
+                            <button type="button" name="submit" id="add_categ_btn">Done</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- End Adding category modal -->
+	    </div>
+    </section>
+
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-firestore.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.3.5/js/swiper.min.js'></script>
+    <script type="text/javascript" src="../js/main.js"></script>
+    <script type="text/javascript" src="../js/dialog.js"></script>
+    <script type="text/javascript" src="../js/functions.js"></script>
+</body>
+</html>
