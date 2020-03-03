@@ -1272,3 +1272,32 @@ function getItems(){
 	});
 
 }
+
+function convert(value, fromUnit, toUnit){
+	const from_kl = {kl: 1, l: 1000, ml: 1000000};
+	const from_l = {kl: 0.001, l: 1, ml: 1000};
+	const from_ml = {kl: 0.000001, l: 0.001, ml: 1};
+	const from_kg = {kg: 1, g: 1000, mg: 1000000};
+	const from_g = {kg: 0.001, g: 1, mg: 1000};
+	const from_mg = {kg: 0.000001, g: 0.001, mg: 1};
+
+	const liquidUnits = {kl: from_kl, l: from_l, ml: from_ml};
+	const massUnits = {kg: from_kg, g: from_g, mg: from_mg};
+
+	var returnValue = null;
+	if (massUnits.hasOwnProperty(fromUnit) && massUnits.hasOwnProperty(toUnit)) {
+		massConversion();
+	}else if (liquidUnits.hasOwnProperty(fromUnit) && liquidUnits.hasOwnProperty(toUnit)) {
+		liquidConversion();
+	}
+
+	function massConversion(){
+		returnValue = +value * massUnits[fromUnit][toUnit];
+	}
+
+	function liquidConversion(){
+		returnValue = +value * liquidUnits[fromUnit][toUnit];
+	}
+
+	return returnValue;
+}

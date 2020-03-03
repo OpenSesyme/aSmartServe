@@ -717,6 +717,68 @@ body {
     background-color: #336699;
 }
 
+#ss_admin_menu .all-popups #addIngredients .modal-content .add-ingredient {
+	background-color: #e6e6e6;
+	padding: 2em;
+	margin-top: 20px;
+	border-radius: 20px;
+	position: relative;
+}
+
+#ss_admin_menu .all-popups #addIngredients .modal-content .add-ingredient .add-ingred-btn {
+	background-color: #369;
+	color: #fff;
+	padding: 0.5em;
+	border: none;
+}
+
+#ss_admin_menu .all-popups #addIngredients .modal-content .added-ingredients {
+	margin-top: 20px;
+	padding: 0.5em;
+	max-height: 150px;
+	overflow-y: scroll;
+}
+
+#ss_admin_menu .all-popups #addIngredients .modal-content .added-ingredients ul li {
+	background-color: #fff;
+	color: #222;
+	margin-bottom: 10px;
+	border-radius: 0.8rem;
+  	box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+#ss_admin_menu .all-popups #addIngredients .modal-content .added-ingredients ul li h4 {
+	margin: 0;
+	padding: 0.4em !important;
+}
+
+#ss_admin_menu .all-popups #addIngredients .modal-content .added-ingredients ul li h4 span {
+	font-style: italic;
+}
+
+#ss_admin_menu .all-popups #addIngredients .modal-content .added-ingredients ul li h4 .remove-added-ingred {
+	color: tomato;
+	cursor: pointer;
+	font-weight: 700;
+	font-style: normal;
+}
+
+#ss_admin_menu .all-popups #addIngredients .modal-content .footer-btns {
+	padding-top: 20px;
+	text-align: right;
+}
+
+#ss_admin_menu .all-popups #addIngredients .modal-content .footer-btns button {
+	padding: 0.4em 2em;
+	border: 1px solid #e6e6e6;
+}
+
+#ss_admin_menu .all-popups #addIngredients .modal-content .footer-btns button.done-adding-ingred {
+	background-color: #369;
+	color: #fff;
+	border: 1px solid #369;
+}
+
 /*++++++++++++++++++++++++++++++++++
 		Staff table style
 ++++++++++++++++++++++++++++++++++*/
