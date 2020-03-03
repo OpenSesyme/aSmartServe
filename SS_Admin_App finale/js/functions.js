@@ -456,30 +456,63 @@ function loadMenuItems (subCategory){
         Unavailable = "selected";
       }
 			var html = '<div class="item">\
-                    <div class="add-ingredients">\
-                      <button type="button" id="viewAddIngredients" class="add-ingred-btn">Ingredients</button>\
-                    </div>\
+		                    <div class="add-ingredients">\
+		                      <button type="button" id="viewAddIngredients" class="add-ingred-btn">Ingredients</button>\
+		                    </div>\
 		        			<h3>'+name+'</h3>\
         					<p>'+description+'</p>\
         					<div class="price-and-edit">\
         						<span class="price">R'+price+'</span>\
-                      <select name="name" class="item-availability" id="availability">\
-                          <option '+available+'>Available</option>\
-                          <option '+Unavailable+'>Unavailable</option>\
-                      </select>\
+								<select name="name" class="item-availability" id="availability">\
+								  <option '+available+'>Available</option>\
+								  <option '+Unavailable+'>Unavailable</option>\
+								</select>\
         						<a class="edit-item">Edit</a>\
         						<p hidden>'+doc.id+'</p>\
 		        			</div>\
-                  <button class="remove-item-btn"><i class="fa fa-times"></i></button>\
+                  			<button class="remove-item-btn"><i class="fa fa-times"></i></button>\
         				</div>'
         	$('#menuItems').append(html);
 		});
 	});
+
+	$('#menuItems').on('click', '#viewAddIngredients', function(){
+        var modal = document.getElementById("addIngredients");
+        modal.style.display = "block";
+
+        window.onclick = function(event) {
+            if(event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        $('#closeIngredients').on('click', function(){
+            modal.style.display = "none";
+        });
+
+        $('.cancel').on('click', function(){
+            modal.style.display = "none";
+        });
+
+        $('.add-ingred-btn').on('click', function(){
+        	var Ingredient = `<li>
+                                <h4>
+                                    <span class="qty-added">200</span>
+                                    <span class="units-added">kg</span> of 
+                                    <span class="ingred-added">Ingredient</span> added in 
+                                    <span>Item Name</span>
+
+                                    <span class="w3-right remove-added-ingred">X</span>
+                                </h4>
+                            </li>`;
+            $('#ingredients_list').append(Ingredient);
+        })
+    });
 }
 
-/*=====================================
-        Employees
-======================================*/
+/*================================================================================
+        								Employees
+==================================================================================*/
 function loadEmployees (){
   //load Employees page
     prepareStaffTable(employeesList);

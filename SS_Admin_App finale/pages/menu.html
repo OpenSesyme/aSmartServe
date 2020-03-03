@@ -23,9 +23,6 @@
 
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <button id="viewAddIngredients">Me</button>
-                    </li>
-                    <li>
                         <div>
                             <button  id="signed_user" class="btn navbar-btn" type="button"></button>
                         </div>
@@ -193,48 +190,8 @@
                     </div>
 
                     <div class="added-ingredients scroll">
-                        <ul class="list-unstyled">
-                            <li>
-                                <h4>
-                                    <span class="qty-added">200</span>
-                                    <span class="units-added">kg</span> of 
-                                    <span class="ingred-added">Ingredient</span> added in 
-                                    <span>Item Name</span>
-
-                                    <span class="w3-right remove-added-ingred">X</span>
-                                </h4>
-                            </li>
-                            <li>
-                                <h4>
-                                    <span class="qty-added">200</span>
-                                    <span class="units-added">kg</span> of 
-                                    <span class="ingred-added">Ingredient</span> added in 
-                                    <span>Item Name</span>
-
-                                    <span class="w3-right remove-added-ingred">X</span>
-                                </h4>
-                            </li>
-                            <li>
-                                <h4>
-                                    <span class="qty-added">200</span>
-                                    <span class="units-added">kg</span> of 
-                                    <span class="ingred-added">Ingredient</span> added in 
-                                    <span>Item Name</span>
-
-                                    <span class="w3-right remove-added-ingred">X</span>
-                                </h4>
-                            </li>
-
-                            <li>
-                                <h4>
-                                    <span class="qty-added">200</span>
-                                    <span class="units-added">kg</span> of 
-                                    <span class="ingred-added">Ingredient</span> added in 
-                                    <span>Item Name</span>
-
-                                    <span class="w3-right remove-added-ingred">X</span>
-                                </h4>
-                            </li>
+                        <ul class="list-unstyled" id="ingredients_list">
+                            <!-- Ingredients are added here -->
                         </ul>
                     </div>
 
@@ -257,17 +214,5 @@
     <script type="text/javascript" src="../js/main.js"></script>
     <script type="text/javascript" src="../js/dialog.js"></script>
     <script type="text/javascript" src="../js/functions.js"></script>
-    <script type="text/javascript">
-        $('#viewAddIngredients').on('click', function(){
-            var modal = document.getElementById("addIngredients");
-            modal.style.display = "block";
-
-            window.onclick = function(event) {
-                if(event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-        });
-    </script>
 </body>
 </html>
