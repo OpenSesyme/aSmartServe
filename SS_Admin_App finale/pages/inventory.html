@@ -81,7 +81,6 @@
                 <div class="modal-content">
                     <span id="closeAddCategory" class="close">&times;</span>
                     <h3 class="w3-center" style="margin: 0">Add Category</h3>
-                    <h3 class="w3-center" style="margin: 0" id="h3_edit">Edit Category</h3>
                     <div class="add-category">
                     	<h4 class="w3-center" style="color: #008000"></h4>
                     	<div class="row" style="margin-top: 20px">
@@ -114,7 +113,7 @@
         	<div id="itemHistory" class="modal">
                 <div class="modal-content">
                     <span id="closeHistory" class="close">&times;</span>
-                    <h3 class="w3-center" style="margin: 0">Open Sesyme History</h3>
+                    <h3 class="w3-center" style="margin: 0" id="item-name-history">Open Sesyme History</h3>
                     <div class="history">
                     	<h4>Month Opening 
                     		<span class="date" style="color: #336699">(15 Feb)</span>
@@ -123,22 +122,7 @@
                     	<ul class="list-unstyled">
                     		<li>
                     			<table class="table">
-									<tbody>
-										<tr>
-											<td>Tukela</td>
-											<td class="date">23 Feb</td>
-											<td><span class="added">+29</span></td>
-										</tr>
-										<tr>
-											<td>Joyce</td>
-											<td class="date">24 Feb</td>
-											<td><span class="loss">-13</span></td>
-										</tr>
-										<tr>
-											<td>Mayne</td>
-											<td class="date">27 Feb</td>
-											<td><span class="added">+81</span></td>
-										</tr>
+									<tbody id="view-history">
 									</tbody>
 								</table>
                     		</li>
@@ -147,7 +131,7 @@
 
                     <div class="footer">
                     	<div class="available">
-                    		<h1>Available <span class="w3-right">194</span></h1>
+                    		<h1>Available <span class="w3-right"></span></h1>
                     	</div>
                     </div>
                 </div>
@@ -164,20 +148,15 @@
                     <h3 class="w3-center" style="margin: 0">Refill</h3>
                     <div class="item-refilling">
                     	<div class="remaining">
-                    		<h4>Open Sesyme</h4>
+                    		<h4 id="item_name">Open Sesyme</h4>
                     		<small class="blinking">Remaining <span>43 units</span></small>
                     	</div>
                     	<div class="row">
 							<div class="col-sm-8">
-								<input type="number" class="form-control" placeholder="Enter number" value="1762">
+								<input type="number" id="amount-refill" class="form-control" placeholder="Enter a value of refill" value="">
 							</div>
 							<div class="col-sm-4">
-								<select name="cars" class="form-control">
-									<option selected disabled>- select measurements -</option>
-									<option>Kg</option>
-									<option>mg</option>
-									<option>qty</option>
-									<option>lbs</option>
+								<select id="refil-measures" class="form-control">
 								</select>
 							</div>
 						</div>
@@ -203,7 +182,7 @@
         	<div id="editItem" class="modal add-edit-item">
                 <div class="modal-content">
                     <span id="closeEdit" class="close">&times;</span>
-                    <h3 class="w3-center" style="margin: 0" id="h3_add">Add Item</h3>
+                    <h3 class="w3-center" style="margin: 0">Add Item</h3>
                     <div class="edit-item">
                     	<div class="row" style="margin-bottom: 10px">
                     		<div class="col-sm-12">
@@ -213,9 +192,21 @@
                     	</div>
 
                 		<div class="row" style="margin-bottom: 10px">
-							<div class="col-sm-6">
-								<input type="text" class="form-control" placeholder="Name of the item" id="item-name">
-							</div>
+							<div class="col-sm-4">
+								<input type="text" class="form-control" placeholder="Name of the item" id="item_name_input">
+                            </div>
+                            
+                            <div class="col-sm-2">
+                                <select name="units-of-measurement" class="form-control" id="units-of-measurement">
+                                    <option>kg</option>
+                                    <option>mg</option>
+                                    <option>qty</option>
+                                    <option>lbs</option>
+                                    <option>l</option>
+                                    <option>ml</option>
+                                </select>
+                            </div>
+                            
                             
 							<div class="col-sm-6">
                                 <div class="input-group">
@@ -241,12 +232,7 @@
 							  		<input type="text" class="form-control" placeholder="How much are you subtracting?">	
 							  	</div>
 							  	<div class="col-sm-4">
-									<select name="measurements" class="form-control">
-										<option selected disabled>- Select Measurements -</option>
-										<option>kg</option>
-										<option>mg</option>
-										<option>qty</option>
-										<option>lbs</option>
+									<select name="measurements" class="form-control" id="measurements">
 									</select>
 								</div>
 							</div>
@@ -268,7 +254,7 @@
                     <div class="footer">
                     	<div class="footer-btns">
                     		<button type="button" class="cancel" id="closeEdit">Cancel</button>
-                    		<button type="button" class="update-Item" id="add-item">Add Item</button>
+                            <button type="button" class="update-Item">Add Item</button>
                     	</div>
                     </div>
                 </div>

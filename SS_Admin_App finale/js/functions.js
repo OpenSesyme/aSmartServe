@@ -10,6 +10,8 @@ var mainCategories = [];
 var subCategories = [];
 var menuItemId = null;
 var category = null;
+var category_location = null;
+var itemId = null;
 var categoriesMap = new Map();
 var d = new Date();
 d.setHours(0,0,0,0);
@@ -1065,258 +1067,547 @@ function loadInventory (){
 	getSideNav();
 	getDropCategs();
 	setTimeout(function(){getItems()},1500);
-	
 
-//load Inventory page
+    //load Inventory page
+    //------------------------- INVOKE --------------------------
+    $('.invetory-items').on('click', '#viewItemHistory', function(){
+        var modal = document.getElementById("itemHistory");
+        // var current_date = new Date();
+        // var formatted_date = moment(current_date).format("YYYY");
+        modal.style.display = "block";
+        var id = $(this).closest('.item').find('h2')[0].innerHTML;
+        $("#item-name-history").text(id+" History");
+        Inventory.doc(id).get().then(function(item){
+            $('#view-history').empty();
+            var refsArray = item.get("Refils");
+            for(var i = 0; i < refsArray.length; i++){
+                var change = "";
+                if(refsArray[i].lrChange.includes("-")){
+                    change = "<span class='loss'>"+refsArray[i].lrChange+"</span>"
+                }else if(refsArray[i].lrChange.includes("+")){
+                    change = "<span class='added'>"+refsArray[i].lrChange+"</span>"
+                }
+                $('#view-history').append(`
+                    <tr>
+                        <td>${refsArray[i].person}</td>
+                        <td class="date">${moment(refsArray[i].lrDate.toDate()).format("MMM DD")}</td>
+                        <td>${change}</td>
+                    </tr>
+                `);
+            }
 
-//------------------------- INVOKE --------------------------
-  $('.invetory-items').on('click', '#viewItemHistory', function(){
-    var modal = document.getElementById("itemHistory");
-    modal.style.display = "block";
-
-    window.onclick = function(event) {
-        if(event.target == modal) {
-          modal.style.display = "none";
+            $('.available').find('span').text(item.data().remainingItems);
+        });
+        window.onclick = function(event) {
+            if(event.target == modal) {
+            modal.style.display = "none";
+            }
         }
-    }
-  });
+    });
 
-$('.invetory-items').on('click', '#viewRefill', function(){
-    var modal = document.getElementById("refillItem");
-    modal.style.display = "block";
+    $('.invetory-items').on('click', '#viewRefill', function(){
+        var modal = document.getElementById("refillItem");
+        modal.style.display = "block";
 
-    window.onclick = function(event) {
-        if(event.target == modal) {
-          modal.style.display = "none";
+        var id = $(this).closest('.item').find('h2')[0].innerHTML;
+
+        Inventory.doc(id).get().then(function(refil){
+            var data = refil.data();
+            var remainingItems = data.remainingItems;
+
+            $('#refillItem').find('h4')[0].innerHTML = id;
+
+            var remaining = "";
+            if(data.units == "kg" || data.units == "mg" || data.units == "g"){
+                remaining = remainingItems+data.units;
+                $('#refil-measures').html(`
+                    <option selected disabled>- select measurements -</option>
+                    <option>kg</option>
+                    <option>mg</option>
+                    <option>g</option>
+                    <option>lbs</option>
+                `);
+            }else if(data.units == "ml" || data.units == "l" || data.units == "qty"){
+                remaining = remainingItems;
+                $('#refil-measures').html(`
+                    <option selected disabled>- select measurements -</option>
+                    <option>qty</option>
+                `);
+            }    
+
+            $('.remaining').find('span')[0].innerHTML = remaining;
+
+            
+        }).catch(function(error){
+            console.error(error);
+        });
+        
+
+        window.onclick = function(event) {
+            if(event.target == modal) {
+            modal.style.display = "none";
+            }
         }
-    }
-});
+    });
 
-$('.invetory-items').on('click', '#viewEdit', function(){
-    var modal = document.getElementById("editItem");
-    $('#h3_add').hide();
-    $('#add_units').hide();
-    $('#h3_remaining').show();
-    $('#h3_edit').show();
-    $('#subtract_units').show();
-    modal.style.display = "block";
+    $('.invetory-items').on('click', '#viewEdit', function(){
+        var id = $(this).closest('.item').find('h2')[0].innerHTML;
+        itemId = id;
+        var selectCategory = $('#item-category').find('option');
+        var getUnitsArr = $('#item-units').find('option');
+        var modal = document.getElementById("editItem");
 
-    window.onclick = function(event) {
-        if(event.target == modal) {
-          modal.style.display = "none";
+        $('#editItem').find('h3')[0].innerHTML = "Edit Item";
+        $('#editItem').find('.update-Item')[0].innerHTML = "Edit Item";
+        $('#add_units').hide();
+        $('#h3_remaining').show();
+        $('#subtract_units').show();
+        modal.style.display = "block";
+        
+        window.onclick = function(event) {
+            if(event.target == modal) {
+            modal.style.display = "none";
+            }
         }
-    }
-});
+        Inventory.doc(id).get().then(function(data){
+            var item = data.data();
+            if(item.units == "ml" || item.units == "l"){
+                $('#h3_remaining').find('span')[0].innerHTML = item.remainingItems+" x "+item.unitsPerItem+item.units;
+            }else if(item.units == "qty"){
+                $('#h3_remaining').find('span')[0].innerHTML = item.name+" x "+item.remainingItems+" "+item.units;
+            }else{
+                $('#h3_remaining').find('span')[0].innerHTML = item.name+" "+item.remainingItems+" "+item.units;
+            }
+            
+            $('#item_name_input').val(item.name);
+            $('#item-units').val(item.units);
+            $('#item-measure').val(item.unitsPerItem);
+            if(item.units == "kg" || item.units == "mg" || item.units == "lbs"){
+                $('#measurements').empty();
+                var html = `<option selected disabled>- Select Measurements -</option>
+                            <option>kg</option>
+                            <option>g</option>
+                            <option>mg</option>
+                        <option>lbs</option>`;
+                $('#measurements').html(html);
+            }else{
+                $('#measurements').empty();
+                var html = `<option selected disabled>- Select Measurements -</option>
+                            <option>qty</option>
+                            <option>l</option>
+                        <option>ml</option>`; 
+                $('#measurements').html(html);
+            }
+            for(var i = 0; i < getUnitsArr.length; i++){
+                if(getUnitsArr[i].innerHTML === item.units){
+                    getUnitsArr[i].setAttribute('selected', '');
+                }
+            }
+            
+            for(var i = 0; i < selectCategory.length; i++){
+                if(selectCategory[i].innerHTML == item.category){
+                    category_location = i;
+                    selectCategory[i].setAttribute('selected', '');
+                }
+            }
+            
+        }).then(function(){
 
-$('#add_inventory_item').on('click', function(){
-    var modal = document.getElementById("editItem");
-    $('#h3_remaining').hide();
-    $('#h3_edit').hide();
-    $('#subtract_units').hide();
-    $('#h3_add').show();
-    $('#add_units').show();
-    modal.style.display = "block";
+        }).catch(function(error){
+            console.error(error);
+        });
 
-    window.onclick = function(event) {
-        if(event.target == modal) {
-          modal.style.display = "none";
+    });
+
+    $('#add_inventory_item').on('click', function(){
+        var modal = document.getElementById("editItem");
+        $('#editItem').find('h3')[0].innerHTML = "Add Item";
+        $('#editItem').find('.update-Item')[0].innerHTML = "Add Item";
+        $('#item_name_input').val('');
+        $('#item-measure').val('');
+        getDropCategs();
+        $('#h3_remaining').hide();
+        $('#h3_edit').hide();
+        $('#subtract_units').hide();
+        $('#h3_add').show();
+        $('#add_units').show();
+        modal.style.display = "block";
+
+        window.onclick = function(event) {
+            if(event.target == modal) {
+            modal.style.display = "none";
+            }
         }
-    }
-});
+    });
 
-$('#viewAddCategory').on('click', function(){
-    var modal = document.getElementById("addInventoryCategory");
-    modal.style.display = "block";
-    window.onclick = function(event) {
-        if(event.target == modal) {
-          modal.style.display = "none";
+    $('#viewAddCategory').on('click', function(){
+        var modal = document.getElementById("addInventoryCategory");
+        modal.style.display = "block";
+        window.onclick = function(event) {
+            if(event.target == modal) {
+            modal.style.display = "none";
+            }
         }
-    }
-});
+    });
 
-$('#closeAddCategory').on('click', function(){
-    var modal = document.getElementById("addInventoryCategory");
-	modal.style.display = "none";
-});
+    $('#closeAddCategory').on('click', function(){
+        var modal = document.getElementById("addInventoryCategory");
+        modal.style.display = "none";
+    });
 
-$('#closeEdit').on('click', function(){
-    var modal = document.getElementById("editItem");
-	modal.style.display = "none";
-});
-//------------------------ ADD ----------------------------------
-//=====================[CATEGORY]================================
-$('#add-category').on('click', function(e){
-	e.preventDefault();
-	var categName = $('#category-name').val().trim();
-	console.log(categName.length);
-	var addCategStatus = $('.add-category').find('h4')[0];
+    $('#closeEdit').on('click', function(){
+        var modal = document.getElementById("editItem");
+        modal.style.display = "none";
+    });
 
-	if(categName != null && categName.length >= 3){
-		var categArray = [];
-		Inventory.doc('Categories').get().then(function(categories)
-		{
-			categArray = categories.get("categories");
-			if(categArray == null){
-				categArray = [];
-				categArray.push(categName);
-				Inventory.doc('Categories').set({categories: categArray})
-				.then(function(){
-					addCategStatus.style.color = "#008000";
-					addCategStatus.innerHTML = "Category Successfully Added";
-					$('#category-name').val("");
-				}).catch(function(){
-					addCategStatus.style.color = "#800000";
-					addCategStatus.innerHTML = "Error while adding category";
-				});	
-			}else{
-				categArray.push(categName);
-				Inventory.doc('Categories').update({categories: categArray})
-				.then(function(){
-					addCategStatus.style.color = "#008000";
-					addCategStatus.innerHTML = "Category Successfully Added";
-					$('#category-name').val("");
-				}).catch(function(){
-					addCategStatus.style.color = "#800000";
-					addCategStatus.innerHTML = "Error while adding category";
-				});	
-			}
-  
-		});
+    $('#closeHistory').on('click', function(){
+        var modal = document.getElementById("refillItem");
+        modal.style.display = "none";   
+    })
+    //------------------------ ADD ----------------------------------
+    //=====================[CATEGORY]================================
+    $('#add-category').on('click', function(e){
+        e.preventDefault();
+        var categName = $('#category-name').val().trim();
+        console.log(categName.length);
+        var addCategStatus = $('.add-category').find('h4')[0];
 
-	}else{
-	addCategStatus.style.color = "#800000";
-	addCategStatus.innerHTML = "You need to add atleast 3 letters";
-	}
-});
+        if(categName != null && categName.length >= 3){
+            var categArray = [];
+            Inventory.doc('Categories').get().then(function(categories)
+            {
+                categArray = categories.get("categories");
+                if(categArray == null){
+                    categArray = [];
+                    categArray.push(categName);
+                    Inventory.doc('Categories').set({categories: categArray})
+                    .then(function(){
+                        addCategStatus.style.color = "#008000";
+                        addCategStatus.innerHTML = "Category Successfully Added";
+                        $('#category-name').val("");
+                    }).catch(function(){
+                        addCategStatus.style.color = "#800000";
+                        addCategStatus.innerHTML = "Error while adding category";
+                    });	
+                }else{
+                    categArray.push(categName);
+                    Inventory.doc('Categories').update({categories: categArray})
+                    .then(function(){
+                        addCategStatus.style.color = "#008000";
+                        addCategStatus.innerHTML = "Category Successfully Added";
+                        $('#category-name').val("");
+                    }).catch(function(){
+                        addCategStatus.style.color = "#800000";
+                        addCategStatus.innerHTML = "Error while adding category";
+                    });	
+                }
+    
+            });
 
-//========================[ITEM]================================
+        }else{
+        addCategStatus.style.color = "#800000";
+        addCategStatus.innerHTML = "You need to add atleast 3 letters";
+        }
+    });
 
-var measure = 0;
-var qty = 1;
-var total = 0;
-var units = "kg";
-$('#item-total').text(total);	
+    //========================[ITEM]================================
 
-$('#item-units').change(function(){
-	units = $('#item-units').val();
-	$('#item-total').empty();
-	$('#item-total').text("");
-	console.log(SignedUser);
-	
-});
+    var measure = 0;
+    var qty = 1;
+    var total = 0;
+    var units = "kg";
+    $('#item-total').text(total);	
 
-$('#item-measure').on('keyup', function(){
-	measure = $('#item-measure').val();
-	if(isNaN(measure)){
-		measure = 0;
-	}
-	$('#item-total').empty();
-	total = measure * qty;
-	if(units == "l" || units == "ml" || units == "qty"){
-		total = "";
-	}else{
-		total = measure * qty +" "+units;
-	}
-	$('#item-total').text(total);
-});
+    $('#item-units').change(function(){
+        units = $('#item-units').val();
+        $('#item-total').empty();
+        $('#item-total').text("");
+        console.log(SignedUser);
+        
+    });
 
-$('#item-quantity').on('keyup', function(){
-	qty = $('#item-quantity').val();
-	if(isNaN(qty)){
-		qty = 0;
-	}
-	if(units == "l" || units == "ml" || units == "qty"){
-		total = "";
-	}else{
-		total = measure * qty+" "+units;
-	}
-	$('#item-total').text(total);
-});
+    $('#item-measure').on('keyup', function(){
+        measure = $('#item-measure').val();
+        if(isNaN(measure)){
+            measure = 0;
+        }
+        $('#item-total').empty();
+        total = measure * qty;
+        if(units == "l" || units == "ml" || units == "qty"){
+            total = "";
+        }else{
+            total = measure * qty +" "+units;
+        }
+        $('#item-total').text(total);
+    });
 
-$('#add-item').on('click', function(e){
-	e.preventDefault();
-	var error = null;
-	var itemName = $('#item-name').val();
-	var itemCategory = $('#item-category').val();
-	var itemUnits = $('#item-units').val();
-	var itemMeasure = $('#item-measure').val();
-	var itemQuantity = $('#item-quantity').val();
+    $('#item-quantity').on('keyup', function(){
+        qty = $('#item-quantity').val();
+        if(isNaN(qty)){
+            qty = 0;
+        }
+        if(units == "l" || units == "ml" || units == "qty"){
+            total = "";
+        }else{
+            total = measure * qty+" "+units;
+        }
+        $('#item-total').text(total);
+    });
 
-	if(itemCategory != null){
-		if(itemName != null && itemName.length > 2){
-			if(itemQuantity != null && itemQuantity > 0){
-				var docName = itemName+" "+itemMeasure+itemUnits;
-				var arrayOfObject = [];
-				var person = SignedUser.name;
-				var lrDate = new Date();
-				var lrChange = "";
-				var lrTotal = 0;
-				var lrReason = "Adding new item";
-				if(itemUnits == "qty"){
-					docName = itemName;
-				}
+    $('.update-Item').on('click', function(e){
+        e.preventDefault();
+        var action = $(this).text();
+        
+        var error = null;
+        var itemName = $('#item_name_input').val();
+        console.log(itemName);
+        
+        var itemCategory = $('#item-category').val();
+        var itemUnits = $('#item-units').val();
+        var itemMeasure = $('#item-measure').val();
+        var itemQuantity = $('#item-quantity').val();
+        var unitsOfMeasurement = $('#units-of-measurement').val();
 
-				if(itemUnits == "qty" || itemUnits == "ml" || itemUnits == "l"){
-					lrTotal = itemQuantity;
-				}else{
-					if(itemMeasure != null && itemMeasure > 0){
-						lrTotal = itemMeasure * itemQuantity;
-					}
-				}
+        if(itemCategory != null){
+            if(itemName != null && itemName.length > 2){
+                if(action == "Add Item"){   
+                    if(itemQuantity != null && itemQuantity > 0){
+                        var docName = itemName+" "+itemMeasure+itemUnits;
+                        var arrayOfObject = [];
+                        var person = SignedUser.name;
+                        var lrDate = new Date();
+                        var lrChange = "";
+                        var lrTotal = 0;
+                        var lrReason = "Adding new item";
+                        if(itemUnits === "qty"){
+                            docName = itemName;
+                        }
 
-				lrChange = "+"+lrTotal;
-				var obj = {
-							person: person, 
-							lrDate: lrDate, 
-							lrChange: lrChange, 
-							lrTotal: lrTotal, 
-							lrReason: lrReason
-				};
-				console.log(obj);
-				
-				arrayOfObject.push(obj);
+                        if(itemMeasure != null && itemMeasure > 0){
+                            if(unitsOfMeasurement === "qty"){
+                                if(itemUnits == "kg" || itemUnits == "mg" || itemUnits == "lbs"){
+                                    lrTotal = itemQuantity * itemMeasure;
+                                }else{
+                                    lrTotal = itemQuantity;
+                                }
+                                
+                            }else{
+                                lrTotal = itemQuantity * itemMeasure; 
+                            }
 
-				Inventory.doc(docName).set({
-					category: itemCategory,
-					name: itemName,
-					units: itemUnits,
-					Refils: arrayOfObject,
-					remainingItems: lrTotal
+                            lrChange = "+"+lrTotal;
+                            var obj = {
+                                        person: person, 
+                                        lrDate: lrDate, 
+                                        lrChange: lrChange, 
+                                        lrTotal: lrTotal, 
+                                        lrReason: lrReason
+                            };
+                            arrayOfObject.push(obj);
+                            
+                            Inventory.doc(docName).set({
+                                category: itemCategory,
+                                name: itemName,
+                                units: itemUnits,
+                                Refils: arrayOfObject,
+                                remainingItems: lrTotal,
+                                unitsPerItem: itemMeasure,
+                                unitOfMeasure: unitsOfMeasurement   
 
-				}).then(function(){
-					console.log("data added succefully");
-				}).catch(function(error){
-					console.error(error);
-				});
-			}else{
-				error = "Item Quantity be a number greater than zero";
-			}
-		}else{
-			error = "Item name should be characters greater than 2";
-		}
-	}else{
-		error = "Item Category should be selected";
-	}
+                            }).then(function(){
+                                $("#item-add-status").html("data added succefully");
+                                $('#item_name_input').val("");
+                                $('#item-units').val("");
+                                $('#item-measure').val("");
+                                $('#item-quantity').val("");
+            
+                            }).catch(function(error){
+                                console.error(error);
+                            });
+                        }else{
+                            error = "Item measurement should be a number greater than zero";
+                        }
+                    }else{
+                    error = "Item Quantity should be a number greater than zero";
+                    }
+                }else if(action == "Edit Item"){
+                    
+                    Inventory.doc(itemId).get().then(function(item){
+                        var subtract = $('#subtract_units').find('input').val();
+                        console.log(subtract);
+                        
+                        var name = $('#item_name').val();
+                        var measurements = $('#measurements').val();
+                        var itemCategory = $('#item-category').val();
+                        var arr = item.get("Refils");
+                        var data = item.data();
+                        var remainingItems = data.remainingItems;
+                        var lrDate = new Date();
+                        var person = SignedUser.name;
+                        var lrChange = "-"+subtract+measurements;
+                        var lrTotal = arr[arr.length - 1].lrTotal;
+                        var lrReason = "Subtract";
+                        var itemUnits = data.units;
+                        console.log(measurements);
+                        
+                        if(measurements == itemUnits){
+                            lrTotal -= subtract;
+                            remainingItems -= subtract;
+                        }else if(itemUnits == "kg" && measurements == "mg"){
+                            lrTotal -= convert(subtract, measurements, itemUnits).toFixed(2);
+                            remainingItems -= convert(subtract, measurements, itemUnits).toFixed(2);
+                        }else if(itemUnits == "kg" && measurements == "g"){
+                            lrTotal -= convert(subtract, measurements, itemUnits).toFixed(2);
+                            remainingItems -= convert(subtract, measurements, itemUnits).toFixed(2);
+                        }else if(itemUnits == "mg" && measurements == "kg"){
+                            lrTotal -= convert(subtract, measurements, itemUnits).toFixed(2);
+                            remainingItems -= convert(subtract, measurements, itemUnits).toFixed(2);
+                        }else if((itemUnits == "ml" && data.unitOfMeasure == "qty") || (itemUnits == "l" && data.unitOfMeasure == "qty")){
+                        lrTotal -= subtract;
+                        remainingItems -= subtract;                  
+                        }
 
-	if(error != null){
-		$('#item-add-status').html(error);
-	}else{
-		$('#item-add-status').html("");
-	}
-});
+                        // 
 
+                        var obj ={
+                            person: person, 
+                            lrDate: lrDate, 
+                            lrChange: lrChange, 
+                            lrTotal: lrTotal, 
+                            lrReason: lrReason                       
+                        };
+                        arr.push(obj);
+                        Inventory.doc(itemId).update({
+                            name: name,
+                            category: itemCategory,
+                            remainingItems: remainingItems,
+                            Refils: arr
+                        }).then(function(){
+                            console.log("Item updated successfully");
+                            
+                        }).catch(function(error){
+                            console.error(error);
+                        });
 
-//---------------------------- GET ------------------------------
+                        
 
-$('#inventory_categories').on('click', 'li', function(e){
+                    }).catch(function(error){
+                        console.error(error);
+                    });
+                }
+            }else{
+                error = "Item name should be characters greater than 2";
+            }
+        }else{
+            error = "Item Category should be selected";
+        }
 
-	$('#inventory_categories').find('.active-category').removeClass('active-category');
-	$(this).addClass('active-category');
-	$('#main_name').text($(this).text());
-	category = $(this).text();
-	getItems();
-});
+        if(error != null){
+            $('#item-add-status').html(error);
+        }else{
+            $('#item-add-status').html("");
+        }
+    });
 
+    //========================[ITEM REFILLS]================================
+
+    $('.add-refill').on('click', function(e){
+        e.preventDefault();
+        var error = null;
+        var measurements = $('#refil-measures').val();
+        var input = $('#amount-refill').val();
+        var id = $(this).closest('#refillItem').find('#item-name')[0].innerHTML;
+        
+        if(input != null && input > 0 && !isNaN(input)){
+            if(measurements != null){
+                error = "<div class='text-danger'>Please select the measurements</div>";
+            }else{
+                Inventory.doc(id).get().then(function(item){
+
+                    var data = item.data();
+                    var arr = item.get("Refils");
+                    var itemUnits = data.units;
+                    var remainingItems = data.remainingItems;
+                    var lrDate = new Date();
+                    var person = SignedUser.name;
+                    var lrChange = "+"+input+measurements;
+                    var lrTotal = arr[arr.length - 1].lrTotal;
+                    
+                    var lrReason = "Refill";
+            
+                    if(measurements == itemUnits){
+                        lrTotal += input;
+                        remainingItems += input;
+                    }else if(itemUnits == "kg" && measurements == "mg"){
+                        lrTotal += convert(input, measurements, itemUnits).toFixed(2);
+                        remainingItems += convert(input, measurements, itemUnits).toFixed(2);
+                    }else if(itemUnits == "kg" && measurements == "g"){
+                        lrTotal += convert(input, measurements, itemUnits).toFixed(2);
+                        remainingItems += convert(input, measurements, itemUnits).toFixed(2);
+                    }else if(itemUnits == "mg" && measurements == "kg"){
+                        lrTotal += convert(input, measurements, itemUnits).toFixed(2);
+                        remainingItems += convert(input, measurements, itemUnits).toFixed(2);
+                    }else if(itemUnits == "ml" || itemUnits == "l"){
+                        lrTotal += input;
+                        remainingItems += input;           
+                    }
+            
+                    var obj = {
+                        lrChange: lrChange,
+                        lrDate: lrDate,
+                        lrReason: lrReason,
+                        lrTotal: lrTotal,
+                        person: person
+                    };
+
+                    arr.push(obj);
+
+                    Inventory.doc(id).update({
+                        remainingItems: remainingItems,
+                        Refils: arr
+                    }).then(function(){
+                        console.log("Item refilled");
+                    }).catch(function(error){
+                        console.error(error);
+                    });
+                    
+                });
+            
+            }
+        }else{
+            error = "<div class='text-danger'>Enter A number greater than zero</div>";
+        } 
+        
+    });
+
+    //---------------------------- DELETE ITEM ---------------------------------
+
+    $('.invetory-items').on('click', '#remove-item', function(e){
+        e.preventDefault();
+        var id = $(this).closest('.item').find('h2')[0].innerHTML;
+
+        var r = confirm("Are you sure you want to delete this item? if yes press okay!");
+        if (r == true) {
+        Inventory.doc(id).delete().then(function(){
+            console.log("Item "+id+" has been deleted");
+            
+        });
+        } else {
+        txt = "You pressed Cancel!";
+        }
+        
+    });
+
+    //---------------------------- GET ------------------------------
+
+    $('#inventory_categories').on('click', 'li', function(e){
+
+        $('#inventory_categories').find('.active-category').removeClass('active-category');
+        $(this).addClass('active-category');
+        $('#main_name').text($(this).text());
+        category = $(this).text();
+        getItems();
+    });
 }
 
 //==================== CATEGORY FUNCTION ======================
@@ -1379,10 +1670,16 @@ function getItems(){
 				var arr = item.get("Refils");
 				var lastRefillDate = moment(arr[arr.length - 1].lrDate.toDate()).format('DD/MM/YYYY');
 				var lastRefilTotal = arr[arr.length - 1].lrTotal;
-				var remainingItems = data.remainingItems;
+                var remainingItems = data.remainingItems;
+                var remaining = "";
+                if(data.units == "kg" || data.units == "mg" || data.units == "g"){
+                    remaining = remainingItems+data.units+" of "+lastRefilTotal+data.units;
+                }else if(data.units == "ml" || data.units == "l" || data.units == "qty"){
+                    remaining = remainingItems+" of "+lastRefilTotal;
+                }
 				var html = `<div class="item">
 								<div class="overlay">
-									<button type="button" class="remove-item w3-right"><i class="fa fa-trash-o"></i></button>
+									<button type="button" class="remove-item w3-right" id="remove-item"><i class="fa fa-trash-o"></i></button>
 									<div class="action-btns align-middle text-center">
 										<button type="button" class="history" id="viewItemHistory">i</button>
 										<button type="button" id="viewRefill">Refill</button>
@@ -1396,7 +1693,7 @@ function getItems(){
 											<h2 class="text-center">${name}</h2>
 										</div>
 										<div class="col-12 text-center">
-											<p class="item-remaining">${remainingItems} of ${lastRefilTotal}</p>
+											<p class="item-remaining">${remaining}</p>
 										</div>
 									</div>
 								</div>
@@ -1420,7 +1717,7 @@ function getItems(){
 	});
 
 }
-
+ 
 function convert(value, fromUnit, toUnit){
 	const from_kl = {kl: 1, l: 1000, ml: 1000000};
 	const from_l = {kl: 0.001, l: 1, ml: 1000};
