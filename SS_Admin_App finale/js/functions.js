@@ -1072,31 +1072,39 @@ function loadInventory (){
     //------------------------- INVOKE --------------------------
     $('.invetory-items').on('click', '#viewItemHistory', function(){
         var modal = document.getElementById("itemHistory");
-        // var current_date = new Date();
-        // var formatted_date = moment(current_date).format("YYYY");
         modal.style.display = "block";
         var id = $(this).closest('.item').find('h2')[0].innerHTML;
         $("#item-name-history").text(id+" History");
         Inventory.doc(id).get().then(function(item){
             $('#view-history').empty();
             var refsArray = item.get("Refils");
+            var data = item.data();
             for(var i = 0; i < refsArray.length; i++){
-                var change = "";
-                if(refsArray[i].lrChange.includes("-")){
-                    change = "<span class='loss'>"+refsArray[i].lrChange+"</span>"
-                }else if(refsArray[i].lrChange.includes("+")){
-                    change = "<span class='added'>"+refsArray[i].lrChange+"</span>"
+                if(isCurrentMonth(refsArray[i].lrDate.toDate())){
+
+                    var change = "";
+                    var openingBalArr = item.get("monthOpenings");
+                    var openingDate = moment(openingBalArr[openingBalArr.length - 1].date.toDate()).format("DD MMM");
+                    var openingBal = openingBalArr[openingBalArr.length - 1].openingBallance;
+                    $('.history .date').html('('+openingDate+')');
+                    $('.history .opening_bal').html(openingBal+data.unitOfMeasure);
+
+                    if(refsArray[i].lrChange.includes("-")){
+                        change = "<span class='loss'>"+refsArray[i].lrChange+"</span>"
+                    }else if(refsArray[i].lrChange.includes("+")){
+                        change = "<span class='added'>"+refsArray[i].lrChange+"</span>"
+                    }
+                    $('#view-history').append(`
+                        <tr>
+                            <td>${refsArray[i].person}</td>
+                            <td class="date">${moment(refsArray[i].lrDate.toDate()).format("MMM DD")}</td>
+                            <td>${change}</td>
+                        </tr>
+                    `);
                 }
-                $('#view-history').append(`
-                    <tr>
-                        <td>${refsArray[i].person}</td>
-                        <td class="date">${moment(refsArray[i].lrDate.toDate()).format("MMM DD")}</td>
-                        <td>${change}</td>
-                    </tr>
-                `);
             }
 
-            $('.available').find('span').text(item.data().remainingItems);
+            $('.available').find('span').text(data.remainingItems+data.unitOfMeasure);
         });
         window.onclick = function(event) {
             if(event.target == modal) {
@@ -1151,7 +1159,7 @@ function loadInventory (){
         var id = $(this).closest('.item').find('h2')[0].innerHTML;
         itemId = id;
         var modal = document.getElementById("editItem");
-
+        $("#item-add-status").empty();  
         $('#editItem').find('h3')[0].innerHTML = "Edit Item";
         $('#editItem').find('.update-Item')[0].innerHTML = "Edit Item";
         $('#add_units').hide();
@@ -1255,7 +1263,8 @@ function loadInventory (){
         var categName = $('#category-name').val().trim();
         console.log(categName.length);
         var addCategStatus = $('.add-category').find('h4')[0];
-
+        $("#item-add-status").empty();
+        $('#item-total').empty();
         if(categName != null && categName.length >= 3){
             var categArray = [];
             Inventory.doc('Categories').get().then(function(categories){
@@ -1301,7 +1310,7 @@ function loadInventory (){
 
     $('#item-units').change(function(){
         units = $('#item-units').val();
-        $('#item-total').text("");
+        $('#item-total').empty();
     });
 
     $('#item-measure').on('keyup', function(){
@@ -1346,7 +1355,7 @@ function loadInventory (){
         var itemQuantity = $('#item-quantity').val();
         var lowLimitUnits = $('#low_limit_units').val();
         var unitsOfMeasurement = $('#units-of-measurement').val();
-        var lowerLimit = {limitValue: lowLimitValue, limitUnits: limitUnits};
+        var lowerLimit = {limitValue: lowLimitValue, limitUnits: lowLimitUnits};
         var monthOpenings = [];
 
         if(itemCategory != null){
@@ -1371,10 +1380,10 @@ function loadInventory (){
                                 lrTotal = itemQuantity * itemMeasure; 
                                 lrTotal = convert(lrTotal, perItemUnits, unitsOfMeasurement);
                             }
-                        	var monthOpening = {date: date, openingBallance: lrTotal};
+                        	var monthOpening = {date: lrDate, openingBallance: lrTotal};
                         	monthOpenings.push(monthOpening);
 
-                            lrChange = "+"+lrTotal;
+                            lrChange = "+"+lrTotal+unitsOfMeasurement;
                             var obj = {person: person, lrDate: lrDate, lrChange: lrChange, lrTotal: lrTotal, lrReason: lrReason};
                             arrayOfObject.push(obj);
                             
@@ -1507,7 +1516,7 @@ function loadInventory (){
 
                     arr.push(obj);
                     var recentMonthOpening = monthOpenings[monthOpenings.length - 1];
-                    if (!isCurrentMonth(recentMonthOpening.date.toDate())) {
+                    if (!isCurrentMonth(recentMonthOpening.date)) {
                     	var newMonthOpening = {date: date, openingBallance: remainingItems};
                     	monthOpenings.push(newMonthOpening);
                     }
