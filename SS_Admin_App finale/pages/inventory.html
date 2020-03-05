@@ -210,7 +210,7 @@
                             
 							<div class="col-sm-6">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="measurements / unit" id="item-measure">
+                                    <input type="text" class="form-control" placeholder="measurements/unit" id="item-measure">
                                     <span class="input-group-btn" style="width: 25%;">
                                         <select name="unit-per-item" class="form-control" id="item-units">
                                             <option>kg</option>
@@ -240,9 +240,24 @@
 
 						<div class="adding-new-item" id="add_units">
 							<div class="row">
-							  	<div class="col-sm-12">
-							  		<input type="number" id="item-quantity" class="form-control" placeholder="Quantity">	
-							  	</div>
+                                <div class="col-sm-6">
+                                    <input type="number" id="item-quantity" class="form-control" placeholder="Quantity">    
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Alert Limit" id="low_limit">
+                                        <span class="input-group-btn" style="width: 25%;">
+                                            <select name="unit-low-item" class="form-control" id="low_limit_units">
+                                                <option>kg</option>
+                                                <option>mg</option>
+                                                <option>qty</option>
+                                                <option>lbs</option>
+                                                <option>l</option>
+                                                <option>ml</option>
+                                            </select>
+                                        </span>
+                                    </div>
+                                </div>
 							</div>
                             <h3 class="w3-center" style="margin-top: 20px" id="item-total"></h3>
                         </div>

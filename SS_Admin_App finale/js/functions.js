@@ -551,7 +551,7 @@ function loadMenuItems (subCategory){
         	const massUnits = ["kg", "g", "mg"];
         	const liquidUnits = ["kl", "l", "ml"];
         	Inventory.doc(id).get().then((doc) =>{
-        		var units = doc.data().units;
+        		var units = doc.data().perItemUnits;
         		$('#ingred_units').empty();
         		if (massUnits.includes(units)) {
         			for (var i = massUnits.length - 1; i >= 0; i--) {
@@ -571,7 +571,7 @@ function loadMenuItems (subCategory){
 
         $('.add-ingred-btn').on('click', function(){
         	var ingred_id = $('#ingredient_select').val();
-        	var units = $( "#ingred_units option:selected" ).text();
+        	var units = $("#ingred_units option:selected").text();
         	var name = $( "#ingredient_select option:selected" ).text();
         	var qty = $( "#ingred_qty" ).val();
         	var Ingredient = `<li>
@@ -1060,9 +1060,9 @@ function getMonthName(n){
   return monthNames[n];
 }
 
-/*=====================================
-        Inventory
-======================================*/
+/*==========================================================================
+        						Inventory
+===========================================================================*/
 function loadInventory (){
 	getSideNav();
 	getDropCategs();
@@ -1100,7 +1100,7 @@ function loadInventory (){
         });
         window.onclick = function(event) {
             if(event.target == modal) {
-            modal.style.display = "none";
+            	modal.style.display = "none";
             }
         }
     });
@@ -1118,8 +1118,9 @@ function loadInventory (){
             $('#refillItem').find('h4')[0].innerHTML = id;
 
             var remaining = "";
-            if(data.units == "kg" || data.units == "mg" || data.units == "g"){
-                remaining = remainingItems+data.units;
+            var measureUnits = data.unitOfMeasure
+            if(measureUnits == "kg" || measureUnits == "mg" || measureUnits == "g"){
+                remaining = remainingItems+measureUnits;
                 $('#refil-measures').html(`
                     <option selected disabled>- select measurements -</option>
                     <option>kg</option>
@@ -1127,25 +1128,21 @@ function loadInventory (){
                     <option>g</option>
                     <option>lbs</option>
                 `);
-            }else if(data.units == "ml" || data.units == "l" || data.units == "qty"){
+            }else if(measureUnits == "ml" || measureUnits == "l" || measureUnits == "qty"){
                 remaining = remainingItems;
                 $('#refil-measures').html(`
                     <option selected disabled>- select measurements -</option>
-                    <option>qty</option>
-                `);
-            }    
-
+                    <option>qty</option>`
+                );
+            }
             $('.remaining').find('span')[0].innerHTML = remaining;
-
-            
         }).catch(function(error){
             console.error(error);
         });
-        
 
         window.onclick = function(event) {
             if(event.target == modal) {
-            modal.style.display = "none";
+            	modal.style.display = "none";
             }
         }
     });
@@ -1153,8 +1150,6 @@ function loadInventory (){
     $('.invetory-items').on('click', '#viewEdit', function(){
         var id = $(this).closest('.item').find('h2')[0].innerHTML;
         itemId = id;
-        var selectCategory = $('#item-category').find('option');
-        var getUnitsArr = $('#item-units').find('option');
         var modal = document.getElementById("editItem");
 
         $('#editItem').find('h3')[0].innerHTML = "Edit Item";
@@ -1166,23 +1161,24 @@ function loadInventory (){
         
         window.onclick = function(event) {
             if(event.target == modal) {
-            modal.style.display = "none";
+            	modal.style.display = "none";
             }
         }
         Inventory.doc(id).get().then(function(data){
             var item = data.data();
-            if(item.units == "ml" || item.units == "l"){
-                $('#h3_remaining').find('span')[0].innerHTML = item.remainingItems+" x "+item.unitsPerItem+item.units;
-            }else if(item.units == "qty"){
-                $('#h3_remaining').find('span')[0].innerHTML = item.name+" x "+item.remainingItems+" "+item.units;
+            var units = item.unitOfMeasure;
+            if(units == "ml" || units == "l"){
+                $('#h3_remaining').find('span')[0].innerHTML = item.remainingItems+" x "+item.measurePerItem+ item.perItemUnits;
+            }else if( units == "qty"){
+                $('#h3_remaining').find('span')[0].innerHTML = item.name+" x "+item.remainingItems+" "+ units;
             }else{
-                $('#h3_remaining').find('span')[0].innerHTML = item.name+" "+item.remainingItems+" "+item.units;
+                $('#h3_remaining').find('span')[0].innerHTML = item.name+" "+item.remainingItems+" "+ units;
             }
             
             $('#item_name_input').val(item.name);
-            $('#item-units').val(item.units);
-            $('#item-measure').val(item.unitsPerItem);
-            if(item.units == "kg" || item.units == "mg" || item.units == "lbs"){
+            $('#item-units').val(item.perItemUnits);
+            $('#item-measure').val(item.measurePerItem);
+            if(units == "kg" || units == "mg" || units == "lbs"){
                 $('#measurements').empty();
                 var html = `<option selected disabled>- Select Measurements -</option>
                             <option>kg</option>
@@ -1195,28 +1191,16 @@ function loadInventory (){
                 var html = `<option selected disabled>- Select Measurements -</option>
                             <option>qty</option>
                             <option>l</option>
-                        <option>ml</option>`; 
+                        	<option>ml</option>`; 
                 $('#measurements').html(html);
             }
-            for(var i = 0; i < getUnitsArr.length; i++){
-                if(getUnitsArr[i].innerHTML === item.units){
-                    getUnitsArr[i].setAttribute('selected', '');
-                }
-            }
-            
-            for(var i = 0; i < selectCategory.length; i++){
-                if(selectCategory[i].innerHTML == item.category){
-                    category_location = i;
-                    selectCategory[i].setAttribute('selected', '');
-                }
-            }
-            
+            $('#item-units').val(item.perItemUnits);
+            $('#item-category').val(item.category);
         }).then(function(){
 
         }).catch(function(error){
             console.error(error);
         });
-
     });
 
     $('#add_inventory_item').on('click', function(){
@@ -1235,7 +1219,7 @@ function loadInventory (){
 
         window.onclick = function(event) {
             if(event.target == modal) {
-            modal.style.display = "none";
+            	modal.style.display = "none";
             }
         }
     });
@@ -1245,7 +1229,7 @@ function loadInventory (){
         modal.style.display = "block";
         window.onclick = function(event) {
             if(event.target == modal) {
-            modal.style.display = "none";
+            	modal.style.display = "none";
             }
         }
     });
@@ -1263,7 +1247,7 @@ function loadInventory (){
     $('#closeHistory').on('click', function(){
         var modal = document.getElementById("refillItem");
         modal.style.display = "none";   
-    })
+    });
     //------------------------ ADD ----------------------------------
     //=====================[CATEGORY]================================
     $('#add-category').on('click', function(e){
@@ -1274,8 +1258,7 @@ function loadInventory (){
 
         if(categName != null && categName.length >= 3){
             var categArray = [];
-            Inventory.doc('Categories').get().then(function(categories)
-            {
+            Inventory.doc('Categories').get().then(function(categories){
                 categArray = categories.get("categories");
                 if(categArray == null){
                     categArray = [];
@@ -1301,12 +1284,10 @@ function loadInventory (){
                         addCategStatus.innerHTML = "Error while adding category";
                     });	
                 }
-    
             });
-
         }else{
-        addCategStatus.style.color = "#800000";
-        addCategStatus.innerHTML = "You need to add atleast 3 letters";
+        	addCategStatus.style.color = "#800000";
+        	addCategStatus.innerHTML = "You need to add atleast 3 letters";
         }
     });
 
@@ -1320,10 +1301,7 @@ function loadInventory (){
 
     $('#item-units').change(function(){
         units = $('#item-units').val();
-        $('#item-total').empty();
         $('#item-total').text("");
-        console.log(SignedUser);
-        
     });
 
     $('#item-measure').on('keyup', function(){
@@ -1349,7 +1327,7 @@ function loadInventory (){
         if(units == "l" || units == "ml" || units == "qty"){
             total = "";
         }else{
-            total = measure * qty+" "+units;
+            total = +measure * +qty + " " + units;
         }
         $('#item-total').text(total);
     });
@@ -1360,67 +1338,63 @@ function loadInventory (){
         
         var error = null;
         var itemName = $('#item_name_input').val();
-        console.log(itemName);
         
         var itemCategory = $('#item-category').val();
-        var itemUnits = $('#item-units').val();
+        var perItemUnits = $('#item-units').val();
+        var lowLimitValue = $('#low_limit').val();
         var itemMeasure = $('#item-measure').val();
         var itemQuantity = $('#item-quantity').val();
+        var lowLimitUnits = $('#low_limit_units').val();
         var unitsOfMeasurement = $('#units-of-measurement').val();
+        var lowerLimit = {limitValue: lowLimitValue, limitUnits: limitUnits};
+        var monthOpenings = [];
 
         if(itemCategory != null){
             if(itemName != null && itemName.length > 2){
                 if(action == "Add Item"){   
                     if(itemQuantity != null && itemQuantity > 0){
-                        var docName = itemName+" "+itemMeasure+itemUnits;
+                        var docName = itemName+" "+itemMeasure+perItemUnits;
                         var arrayOfObject = [];
                         var person = SignedUser.name;
                         var lrDate = new Date();
                         var lrChange = "";
                         var lrTotal = 0;
                         var lrReason = "Adding new item";
-                        if(itemUnits === "qty"){
+                        if(perItemUnits === "qty"){
                             docName = itemName;
                         }
 
                         if(itemMeasure != null && itemMeasure > 0){
                             if(unitsOfMeasurement === "qty"){
-                                if(itemUnits == "kg" || itemUnits == "mg" || itemUnits == "lbs"){
-                                    lrTotal = itemQuantity * itemMeasure;
-                                }else{
-                                    lrTotal = itemQuantity;
-                                }
-                                
+                                lrTotal = itemQuantity;
                             }else{
                                 lrTotal = itemQuantity * itemMeasure; 
+                                lrTotal = convert(lrTotal, perItemUnits, unitsOfMeasurement);
                             }
+                        	var monthOpening = {date: date, openingBallance: lrTotal};
+                        	monthOpenings.push(monthOpening);
 
                             lrChange = "+"+lrTotal;
-                            var obj = {
-                                        person: person, 
-                                        lrDate: lrDate, 
-                                        lrChange: lrChange, 
-                                        lrTotal: lrTotal, 
-                                        lrReason: lrReason
-                            };
+                            var obj = {person: person, lrDate: lrDate, lrChange: lrChange, lrTotal: lrTotal, lrReason: lrReason};
                             arrayOfObject.push(obj);
                             
                             Inventory.doc(docName).set({
                                 category: itemCategory,
                                 name: itemName,
-                                units: itemUnits,
+                                perItemUnits: perItemUnits,
                                 Refils: arrayOfObject,
                                 remainingItems: lrTotal,
-                                unitsPerItem: itemMeasure,
-                                unitOfMeasure: unitsOfMeasurement   
-
+                                itemMeasure: itemMeasure,
+                                unitOfMeasure: unitsOfMeasurement,  
+                                lowerLimit: lowerLimit,
+                                monthOpenings: monthOpenings
                             }).then(function(){
                                 $("#item-add-status").html("data added succefully");
                                 $('#item_name_input').val("");
                                 $('#item-units').val("");
                                 $('#item-measure').val("");
                                 $('#item-quantity').val("");
-            
+                                $('#low_limit').val("");
                             }).catch(function(error){
                                 console.error(error);
                             });
@@ -1428,14 +1402,11 @@ function loadInventory (){
                             error = "Item measurement should be a number greater than zero";
                         }
                     }else{
-                    error = "Item Quantity should be a number greater than zero";
+                    	error = "Item Quantity should be a number greater than zero";
                     }
                 }else if(action == "Edit Item"){
-                    
                     Inventory.doc(itemId).get().then(function(item){
                         var subtract = $('#subtract_units').find('input').val();
-                        console.log(subtract);
-                        
                         var name = $('#item_name').val();
                         var measurements = $('#measurements').val();
                         var itemCategory = $('#item-category').val();
@@ -1445,29 +1416,17 @@ function loadInventory (){
                         var lrDate = new Date();
                         var person = SignedUser.name;
                         var lrChange = "-"+subtract+measurements;
-                        var lrTotal = arr[arr.length - 1].lrTotal;
+                        var lrTotal = data.remainingItems;
                         var lrReason = "Subtract";
-                        var itemUnits = data.units;
-                        console.log(measurements);
+                        var itemUnits = data.unitOfMeasure;
                         
-                        if(measurements == itemUnits){
-                            lrTotal -= subtract;
-                            remainingItems -= subtract;
-                        }else if(itemUnits == "kg" && measurements == "mg"){
-                            lrTotal -= convert(subtract, measurements, itemUnits).toFixed(2);
+                        if(itemUnits == "qty" && measurements == "qty"){
+                        	lrTotal -= subtract;
+                        	remainingItems -= subtract;                  
+                        }else{
+                        	lrTotal -= convert(subtract, measurements, itemUnits).toFixed(2);
                             remainingItems -= convert(subtract, measurements, itemUnits).toFixed(2);
-                        }else if(itemUnits == "kg" && measurements == "g"){
-                            lrTotal -= convert(subtract, measurements, itemUnits).toFixed(2);
-                            remainingItems -= convert(subtract, measurements, itemUnits).toFixed(2);
-                        }else if(itemUnits == "mg" && measurements == "kg"){
-                            lrTotal -= convert(subtract, measurements, itemUnits).toFixed(2);
-                            remainingItems -= convert(subtract, measurements, itemUnits).toFixed(2);
-                        }else if((itemUnits == "ml" && data.unitOfMeasure == "qty") || (itemUnits == "l" && data.unitOfMeasure == "qty")){
-                        lrTotal -= subtract;
-                        remainingItems -= subtract;                  
                         }
-
-                        // 
 
                         var obj ={
                             person: person, 
@@ -1484,13 +1443,9 @@ function loadInventory (){
                             Refils: arr
                         }).then(function(){
                             console.log("Item updated successfully");
-                            
                         }).catch(function(error){
                             console.error(error);
                         });
-
-                        
-
                     }).catch(function(error){
                         console.error(error);
                     });
@@ -1523,33 +1478,23 @@ function loadInventory (){
                 error = "<div class='text-danger'>Please select the measurements</div>";
             }else{
                 Inventory.doc(id).get().then(function(item){
-
                     var data = item.data();
+                	var monthOpenings = data.monthOpenings;
                     var arr = item.get("Refils");
-                    var itemUnits = data.units;
+                    var itemUnits = data.unitOfMeasure;
                     var remainingItems = data.remainingItems;
                     var lrDate = new Date();
                     var person = SignedUser.name;
                     var lrChange = "+"+input+measurements;
-                    var lrTotal = arr[arr.length - 1].lrTotal;
-                    
+                    var lrTotal = data.remainingItems;
                     var lrReason = "Refill";
             
-                    if(measurements == itemUnits){
+                    if(measurements == "qty" && itemUnits == "qty"){
                         lrTotal += input;
                         remainingItems += input;
-                    }else if(itemUnits == "kg" && measurements == "mg"){
+                    }else{
                         lrTotal += convert(input, measurements, itemUnits).toFixed(2);
                         remainingItems += convert(input, measurements, itemUnits).toFixed(2);
-                    }else if(itemUnits == "kg" && measurements == "g"){
-                        lrTotal += convert(input, measurements, itemUnits).toFixed(2);
-                        remainingItems += convert(input, measurements, itemUnits).toFixed(2);
-                    }else if(itemUnits == "mg" && measurements == "kg"){
-                        lrTotal += convert(input, measurements, itemUnits).toFixed(2);
-                        remainingItems += convert(input, measurements, itemUnits).toFixed(2);
-                    }else if(itemUnits == "ml" || itemUnits == "l"){
-                        lrTotal += input;
-                        remainingItems += input;           
                     }
             
                     var obj = {
@@ -1561,23 +1506,26 @@ function loadInventory (){
                     };
 
                     arr.push(obj);
+                    var recentMonthOpening = monthOpenings[monthOpenings.length - 1];
+                    if (!isCurrentMonth(recentMonthOpening.date.toDate())) {
+                    	var newMonthOpening = {date: date, openingBallance: remainingItems};
+                    	monthOpenings.push(newMonthOpening);
+                    }
 
                     Inventory.doc(id).update({
                         remainingItems: remainingItems,
+                        monthOpenings: monthOpenings,
                         Refils: arr
                     }).then(function(){
                         console.log("Item refilled");
                     }).catch(function(error){
                         console.error(error);
                     });
-                    
                 });
-            
             }
         }else{
             error = "<div class='text-danger'>Enter A number greater than zero</div>";
         } 
-        
     });
 
     //---------------------------- DELETE ITEM ---------------------------------
@@ -1588,20 +1536,17 @@ function loadInventory (){
 
         var r = confirm("Are you sure you want to delete this item? if yes press okay!");
         if (r == true) {
-        Inventory.doc(id).delete().then(function(){
-            console.log("Item "+id+" has been deleted");
-            
-        });
+        	Inventory.doc(id).delete().then(function(){
+            	console.log("Item "+id+" has been deleted");
+        	});
         } else {
-        txt = "You pressed Cancel!";
+        	txt = "You pressed Cancel!";
         }
-        
     });
 
     //---------------------------- GET ------------------------------
 
     $('#inventory_categories').on('click', 'li', function(e){
-
         $('#inventory_categories').find('.active-category').removeClass('active-category');
         $(this).addClass('active-category');
         $('#main_name').text($(this).text());
@@ -1614,12 +1559,10 @@ function loadInventory (){
 
 //SIDENAVBAR CATEGORIES
 function getSideNav(){
-	
 	Inventory.doc("Categories").onSnapshot(function(categories){
 		var categs = categories.get("categories");
 		$('#inventory_categories').empty();
 		if(categs != null){
-
 			for(var i = 0; i < categs.length; i++){
 				if(i == 0){
 					$('#main_name').text(categs[i]);
@@ -1630,7 +1573,6 @@ function getSideNav(){
 					var html = `<li>${categs[i]}</li>`;
 					$('#inventory_categories').append(html);
 				}
-
 			}
 		}else{
 			$('#inventory_categories').append("No categories");
@@ -1658,23 +1600,21 @@ function getDropCategs(){
 
 function getItems(){
 	$('.invetory-items').empty();
-
 	Inventory.where("category", "==", category).onSnapshot(function(snapshots){	
 		$('.invetory-items').empty();
-		
 		if(snapshots.size > 0){
 			snapshots.forEach(function(item){
 				var name = item.id;
 				var data = item.data();
-
 				var arr = item.get("Refils");
 				var lastRefillDate = moment(arr[arr.length - 1].lrDate.toDate()).format('DD/MM/YYYY');
 				var lastRefilTotal = arr[arr.length - 1].lrTotal;
                 var remainingItems = data.remainingItems;
+                var measurementUnit = data.unitOfMeasure;
                 var remaining = "";
-                if(data.units == "kg" || data.units == "mg" || data.units == "g"){
-                    remaining = remainingItems+data.units+" of "+lastRefilTotal+data.units;
-                }else if(data.units == "ml" || data.units == "l" || data.units == "qty"){
+                if(measurementUnit == "kg" || measurementUnit == "mg" || measurementUnit == "g"){
+                    remaining = remainingItems+measurementUnit+" of "+lastRefilTotal+measurementUnit;
+                }else{
                     remaining = remainingItems+" of "+lastRefilTotal;
                 }
 				var html = `<div class="item">
@@ -1745,6 +1685,17 @@ function convert(value, fromUnit, toUnit){
 	}
 
 	return returnValue;
+}
+
+function isCurrentMonth(inputDate){
+  var today = new Date();
+  today.setDate(0);
+  inputDate.setDate(0);
+  if(today.setHours(0,0,0,0) == inputDate.setHours(0,0,0,0)){ 
+  	return true; 
+  }else { 
+  	return false; 
+  }  
 }
 
 /*==========================================
