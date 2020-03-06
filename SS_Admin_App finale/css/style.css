@@ -1527,7 +1527,6 @@ body {
 #inventory .content .invetory-items .item {
 	margin-top: 10px;
 	border: 1px solid #e5e5e5;
-	background-color: #fff;
 	width: 100%;
 	min-height: 130px;
 	position: relative;
@@ -1615,6 +1614,15 @@ body {
     border-radius: 0 !important;
     border: 1px solid #888;
     width: 50%;
+}
+
+.white-bg {
+    background-color: #fff;
+}
+
+.red-bg {
+    background-color: tomato;
+    color: #fff;
 }
 
 /* The Close Button */

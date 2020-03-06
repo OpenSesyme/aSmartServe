@@ -1081,6 +1081,9 @@ function loadInventory (){
         Inventory.doc(id).get().then(function(item){
             $('#view-history').empty();
             var refsArray = item.get("Refils");
+            var monthOpening = item.get("monthOpenings");
+            var data = item.data();
+
             for(var i = 0; i < refsArray.length; i++){
                 var change = "";
                 if(refsArray[i].lrChange.includes("-")){
@@ -1097,7 +1100,9 @@ function loadInventory (){
                 `);
             }
 
-            $('.available').find('span').text(item.data().remainingItems);
+            $('.opening_bal').html(monthOpening[monthOpening.length - 1].openingBallance+data.unitOfMeasure);
+            $('.history .date').html("("+moment(monthOpening[monthOpening.length - 1].date.toDate()).format("MMM DD")+")");
+            $('.available').find('span').text(item.data().remainingItems+data.unitOfMeasure);
         });
         window.onclick = function(event) {
             if(event.target == modal) {
@@ -1302,21 +1307,17 @@ function loadInventory (){
         }
     });
 
-    $('#closeAddCategory').on('click', function(){
-        var modal = document.getElementById("addInventoryCategory");
-        modal.style.display = "none";
-    });
-
-    $('#closeEdit').on('click', function(){
-        var modal = document.getElementById("editItem");
-        modal.style.display = "none";
-    });
-
-    $('#closeHistory').on('click', function(){
-        var modal = document.getElementById("refillItem");
+    $('.close').on('click', function(){
+        var close = $(this).closest('.modal').attr('id');
+        var modal = document.getElementById(close);
         modal.style.display = "none";   
     });
 
+    $('.cancel').on('click', function(){
+        var cancel = $(this).closest('.modal').attr('id');
+        var modal = document.getElementById(cancel);
+        modal.style.display = "none";   
+    });
     //------------------------ ADD ----------------------------------
     //=====================[CATEGORY]================================
     $('#add-category').on('click', function(e){
@@ -1590,7 +1591,7 @@ function editInventoryItem(itemId){
         var remainingItems = data.remainingItems;
         var lrDate = new Date();
         var person = SignedUser.name;
-        var lrChange = "-"(+subtract+measurements).toFixed(2);
+        var lrChange = "-"+subtract+measurements;
         var lrTotal = (data.remainingItems);
         var lrReason = "Subtract";
         var itemUnits = data.unitOfMeasure;
@@ -1703,12 +1704,14 @@ function getItems(){
                 var remainingItems = data.remainingItems;
                 var measurementUnit = data.unitOfMeasure;
                 var remaining = "";
+                var lowerLimit = item.get("lowerLimit");
                 if(measurementUnit == "kg" || measurementUnit == "mg" || measurementUnit == "g"){
                     remaining = remainingItems+measurementUnit+" of "+lastRefilTotal+measurementUnit;
                 }else{
                     remaining = remainingItems+" of "+lastRefilTotal;
                 }
-				var html = `<div class="item">
+                var html = `
+                            <div class="item">
 								<div class="overlay">
 									<button type="button" class="remove-item w3-right" id="remove-item"><i class="fa fa-trash-o"></i></button>
 									<div class="action-btns align-middle text-center">
@@ -1729,7 +1732,15 @@ function getItems(){
 									</div>
 								</div>
 							</div>`;
-				$('.invetory-items').append(html);
+                $('.invetory-items').append(html);
+
+                $('#inventory .content .invetory-items .item').addClass('white-bg');
+
+                if(parseInt(remaining) <= parseInt(lowerLimit.limitValue)) {
+                    $('#inventory .content .invetory-items .item').removeClass('white-bg');
+                    $('#inventory .content .invetory-items .item').addClass('red-bg');
+                }
+               
 			});
 		}else{
 			$('.invetory-items').empty();
