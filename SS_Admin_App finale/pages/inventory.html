@@ -161,7 +161,7 @@
 							</div>
 						</div>
 						<div class="total">
-							<h3>Total <span>1897</span></h3>
+							<h3>Total <span id="refill_total">0</span></h3>
 						</div>
                     </div>
 
@@ -198,12 +198,13 @@
                             
                             <div class="col-sm-2">
                                 <select name="units-of-measurement" class="form-control" id="units-of-measurement">
-                                    <option>kg</option>
-                                    <option>mg</option>
-                                    <option>qty</option>
-                                    <option>lbs</option>
-                                    <option>l</option>
-                                    <option>ml</option>
+                                    <option value="qty">qty</option>
+                                    <option value="kg">kg</option>
+                                    <option value="g">g</option>
+                                    <option value="mg">mg</option>
+                                    <option value="kl">kl</option>
+                                    <option value="l">l</option>
+                                    <option value="ml">ml</option>
                                 </select>
                             </div>
                             
@@ -213,12 +214,6 @@
                                     <input type="text" class="form-control" placeholder="measurements/unit" id="item-measure">
                                     <span class="input-group-btn" style="width: 25%;">
                                         <select name="unit-per-item" class="form-control" id="item-units">
-                                            <option>kg</option>
-                                            <option>mg</option>
-                                            <option>qty</option>
-                                            <option>lbs</option>
-                                            <option>l</option>
-                                            <option>ml</option>
                                         </select>
                                     </span>
                                 </div>
@@ -248,12 +243,6 @@
                                         <input type="text" class="form-control" placeholder="Alert Limit" id="low_limit">
                                         <span class="input-group-btn" style="width: 25%;">
                                             <select name="unit-low-item" class="form-control" id="low_limit_units">
-                                                <option>kg</option>
-                                                <option>mg</option>
-                                                <option>qty</option>
-                                                <option>lbs</option>
-                                                <option>l</option>
-                                                <option>ml</option>
                                             </select>
                                         </span>
                                     </div>
@@ -268,7 +257,7 @@
 
                     <div class="footer">
                     	<div class="footer-btns">
-                    		<button type="button" class="cancel" id="closeEdit">Cancel</button>
+                    		<button type="button" class="cancel" id="btCloseEdit">Cancel</button>
                             <button type="button" class="update-Item">Add Item</button>
                     	</div>
                     </div>
