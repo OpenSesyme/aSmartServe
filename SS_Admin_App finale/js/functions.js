@@ -493,12 +493,13 @@ function loadMenuItems (subCategory){
 
         MenuRef.doc(itemId).get().then((menuitem) =>{
         	ingredients = menuitem.data().ingredients;
+        	$('#ingredients_list').empty();
         	if (ingredients != null) {
         		for (var i = 0; i < ingredients.length; i++) {
 	        		var ingredient = ingredients[i];
 	        		var Ingredient = `<li>
 		                                <h4>
-		                                    <span class="qty-added">${ingredient.quantity}</span>
+		                                    <span class="qty-added">${ingredient.qty}</span>
 		                                    <span class="units-added">${ingredient.units}</span> of 
 		                                    <span class="ingred-added">${ingredient.name}</span> added in 
 		                                    <span>${itemName}</span>
@@ -544,15 +545,15 @@ function loadMenuItems (subCategory){
         		snapshots.forEach((ingredient) =>{
         			const name = ingredient.data().name;
         			const id = ingredient.id;
-        			$('#ingredient_select').append(new Option(name, id));
+        			$('#ingredient_select').append(new Option(id, name));
         		});
         	});
         });
 
         $('#ingredient_select').on('change', function(){
-        	var id = $(this).val();
+        	var id = $(this).find("option:selected").text();
         	Inventory.doc(id).get().then((doc) =>{
-        		var units = doc.data().perItemUnits;
+        		var units = doc.data().unitOfMeasure;
         		$('#ingred_units').empty();
         		if (massUnits.includes(units)) {
         			for (var i = massUnits.length - 1; i >= 0; i--) {
@@ -567,14 +568,32 @@ function loadMenuItems (subCategory){
         		}else{
         			$('#ingred_units').append(new Option("qty", "qty"));
         		}
-        	})
-        })
+        		$('#ingred_units').val(units);
+        	});
+        });
 
         $('.add-ingred-btn').on('click', function(){
-        	var ingred_id = $('#ingredient_select').val();
+        	var name = $('#ingredient_select').val();
+        	var category = $('#ingred_categories option:selected').text();
         	var units = $("#ingred_units option:selected").text();
-        	var name = $( "#ingredient_select option:selected" ).text();
+        	var ingred_id = $( "#ingredient_select option:selected" ).text();
         	var qty = $( "#ingred_qty" ).val();
+        	if (category == null || category == "" || category == "- Select Category -") {
+        		showSnackbar("Please select the Category of ingredient.");
+        		return;
+        	}
+        	if (name == null || name == "" || name == "- Select Ingredient -") {
+        		showSnackbar("Please select the name of ingredient.");
+        		return;
+        	}
+        	if (units == null || units == "") {
+        		showSnackbar("Please select the Unit of ingredient.");
+        		return;
+        	}
+        	if (qty == null || qty == "") {
+        		showSnackbar("Please enter the quantity of ingredient.");
+        		return;
+        	}
         	var Ingredient = `<li>
                                 <h4>
                                     <span class="qty-added">${qty}</span>
@@ -596,6 +615,9 @@ function loadMenuItems (subCategory){
 
         $('.done-adding-ingred').on('click', function(){
         	var children = $('#ingredients_list').children();
+        	if (ingredients == null) {
+        		ingredients = [];
+        	}
         	var newIngredients = [];
         	for (var i = children.length - 1; i >= 0; i--) {
         		var child = children[i];
@@ -606,12 +628,16 @@ function loadMenuItems (subCategory){
         		var ingredient = {name: name, qty: qty, units: units, id: id};
         		newIngredients.push(ingredient);
         	}
-        	if (!arraysEqual(ingredients, newIngredients)) {
+        	if (!arraysEqual(ingredients, newIngredients) && newIngredients.length > 0) {
+        		console.log(newIngredients);
         		showLoader();
         		MenuRef.doc(itemId).update({ingredients: newIngredients}).then(() =>{
         			hideLoader();
         			modal.style.display = "none";
+        			$('#ingredient_select').val($("#ingredient_select option:first").val());
         		});
+        	}else{
+        		modal.style.display = "none";
         	}
         });
     });
