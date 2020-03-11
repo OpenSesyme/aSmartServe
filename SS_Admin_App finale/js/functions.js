@@ -1,6 +1,6 @@
-/*=====================================
-      Global Variables
-======================================*/
+/*==============================================================================
+                                Global Variables
+==============================================================================*/
 var employeesList = [];
 var SignedUser = null;
 var adminsList = [];
@@ -20,9 +20,9 @@ var d = new Date();
 d.setHours(0,0,0,0);
 
 
-/*=====================================
-    initialize firebase
-======================================*/
+/*==============================================================================
+                                initialize firebase
+==============================================================================*/
 const firebaseConfig = {
     apiKey: "AIzaSyB-ONpEfGsObnhbnEWoczi7KYnWw7lJQYA",
     authDomain: "smartserve-9e1e5.firebaseapp.com",
@@ -39,9 +39,9 @@ const Inventory = db.collection("LaPiazzaInventory");
 const MenuRef = db.collection("LaPiazzaMenu");
 
 
-/*=====================================
-  Loading appropriate functions
-======================================*/
+/*==============================================================================
+                        Loading appropriate functions
+==============================================================================*/
 window.onload = function(){
   db.collection("Employees").onSnapshot(function(querySnapshot) {
     employeesList = [];
@@ -106,9 +106,9 @@ window.onload = function(){
   });
 }
 
-/*=====================================
-              Login
-======================================*/
+/*==============================================================================
+                                    Login
+==============================================================================*/
 function loadLogIn (){
   $('#login_btn').on('click', function(){
     login();
@@ -153,9 +153,9 @@ function login (){
   }
 }
 
-/*=====================================
-        Menu
-======================================*/
+/*==============================================================================
+                                        Menu
+==============================================================================*/
 function loadMenu (){
   //Load the Menu page
   loadMainCategories();
@@ -462,22 +462,22 @@ function loadMenuItems (subCategory){
         Unavailable = "selected";
       }
 			var html = '<div class="item">\
-							<div class="add-ingredients">\
-								<button type="button" id="viewAddIngredients" class="add-ingred-btn">Ingredients</button>\
-							</div>\
-							<h3>'+name+'</h3>\
-							<p>'+description+'</p>\
-							<div class="price-and-edit">\
-								<span class="price">R'+price+'</span>\
+		                    <div class="add-ingredients">\
+		                      <button type="button" id="viewAddIngredients" class="add-ingred-btn">Ingredients</button>\
+		                    </div>\
+		        			<h3>'+name+'</h3>\
+        					<p>'+description+'</p>\
+        					<div class="price-and-edit">\
+        						<span class="price">R'+price+'</span>\
 								<select name="name" class="item-availability" id="availability">\
-									<option '+available+'>Available</option>\
-									<option '+Unavailable+'>Unavailable</option>\
+								  <option '+available+'>Available</option>\
+								  <option '+Unavailable+'>Unavailable</option>\
 								</select>\
-								<a class="edit-item">Edit</a>\
-								<p hidden id="doc_id">'+doc.id+'</p>\
-							</div>\
-							<button class="remove-item-btn"><i class="fa fa-times"></i></button>\
-						</div>'
+        						<a class="edit-item">Edit</a>\
+        						<p hidden id="doc_id">'+doc.id+'</p>\
+		        			</div>\
+                  			<button class="remove-item-btn"><i class="fa fa-times"></i></button>\
+        				</div>'
         	$('#menuItems').append(html);
 		});
 	});
@@ -492,8 +492,8 @@ function loadMenuItems (subCategory){
         showLoader();
 
         MenuRef.doc(itemId).get().then((menuitem) =>{
+            $('#ingredients_list').empty();
         	ingredients = menuitem.data().ingredients;
-        	$('#ingredients_list').empty();
         	if (ingredients != null) {
         		for (var i = 0; i < ingredients.length; i++) {
 	        		var ingredient = ingredients[i];
@@ -545,15 +545,17 @@ function loadMenuItems (subCategory){
         		snapshots.forEach((ingredient) =>{
         			const name = ingredient.data().name;
         			const id = ingredient.id;
-        			$('#ingredient_select').append(new Option(id, name));
+        			$('#ingredient_select').append(new Option(name, id));
         		});
         	});
         });
 
         $('#ingredient_select').on('change', function(){
-        	var id = $(this).find("option:selected").text();
+        	var id = $(this).val();
+        	const massUnits = ["kg", "g", "mg"];
+        	const liquidUnits = ["kl", "l", "ml"];
         	Inventory.doc(id).get().then((doc) =>{
-        		var units = doc.data().unitOfMeasure;
+        		var units = doc.data().perItemUnits;
         		$('#ingred_units').empty();
         		if (massUnits.includes(units)) {
         			for (var i = massUnits.length - 1; i >= 0; i--) {
@@ -568,32 +570,14 @@ function loadMenuItems (subCategory){
         		}else{
         			$('#ingred_units').append(new Option("qty", "qty"));
         		}
-        		$('#ingred_units').val(units);
-        	});
-        });
+        	})
+        })
 
         $('.add-ingred-btn').on('click', function(){
-        	var name = $('#ingredient_select').val();
-        	var category = $('#ingred_categories option:selected').text();
+        	var ingred_id = $('#ingredient_select').val();
         	var units = $("#ingred_units option:selected").text();
-        	var ingred_id = $( "#ingredient_select option:selected" ).text();
+        	var name = $( "#ingredient_select option:selected" ).text();
         	var qty = $( "#ingred_qty" ).val();
-        	if (category == null || category == "" || category == "- Select Category -") {
-        		showSnackbar("Please select the Category of ingredient.");
-        		return;
-        	}
-        	if (name == null || name == "" || name == "- Select Ingredient -") {
-        		showSnackbar("Please select the name of ingredient.");
-        		return;
-        	}
-        	if (units == null || units == "") {
-        		showSnackbar("Please select the Unit of ingredient.");
-        		return;
-        	}
-        	if (qty == null || qty == "") {
-        		showSnackbar("Please enter the quantity of ingredient.");
-        		return;
-        	}
         	var Ingredient = `<li>
                                 <h4>
                                     <span class="qty-added">${qty}</span>
@@ -605,7 +589,6 @@ function loadMenuItems (subCategory){
                                 </h4>
                                 <p hidden id="ingred_id">${ingred_id}</p>
                             </li>`;
-            console.log(Ingredient);
             $('#ingredients_list').append(Ingredient);
             $( "#ingred_qty" ).val('');
         });
@@ -616,9 +599,6 @@ function loadMenuItems (subCategory){
 
         $('.done-adding-ingred').on('click', function(){
         	var children = $('#ingredients_list').children();
-        	if (ingredients == null) {
-        		ingredients = [];
-        	}
         	var newIngredients = [];
         	for (var i = children.length - 1; i >= 0; i--) {
         		var child = children[i];
@@ -626,20 +606,15 @@ function loadMenuItems (subCategory){
         		var qty = $(child).find('.qty-added').text();
         		var units = $(child).find('.units-added').text();
         		var id = $(child).find('#ingred_id').text();
-        		console.log(child);
         		var ingredient = {name: name, qty: qty, units: units, id: id};
         		newIngredients.push(ingredient);
         	}
-        	if (!arraysEqual(ingredients, newIngredients) && newIngredients.length > 0) {
-        		console.log(newIngredients);
+        	if (!arraysEqual(ingredients, newIngredients)) {
         		showLoader();
         		MenuRef.doc(itemId).update({ingredients: newIngredients}).then(() =>{
         			hideLoader();
         			modal.style.display = "none";
-        			$('#ingredient_select').val($("#ingredient_select option:first").val());
         		});
-        	}else{
-        		modal.style.display = "none";
         	}
         });
     });
@@ -775,9 +750,9 @@ function prepareStaffTable (employeesList){
   }
 }
 
-/*=====================================
-        Reports
-======================================*/
+/*==============================================================================
+                                    Reports
+==============================================================================*/
 function loadReports (){
   var ad = new Date();
   var n = ad.getMonth();
@@ -1277,7 +1252,7 @@ function loadInventory (){
         Inventory.doc(id).get().then(function(data){
             var item = data.data();
             var units = item.unitOfMeasure;
-            setEditRemainingText(units, item.remainingItems, item.perItemMeasure, item.perItemUnits);
+            setEditRemainingText(item.name, units, item.remainingItems, item.perItemMeasure, item.perItemUnits);
             $('#item_name_input').val(item.name);
             $('#item-units').val(item.perItemUnits);
             $('#item-measure').val(item.perItemMeasure);
@@ -1503,13 +1478,13 @@ function loadInventory (){
     });
 }
 
-function setEditRemainingText(units, remainingItems, perItemMeasure, perItemUnits){
+function setEditRemainingText(itemName, units, remainingItems, perItemMeasure, perItemUnits){
 	if(liquidUnits.includes(units)){
         $('#h3_remaining').find('span')[0].innerHTML = remainingItems+" x "+perItemMeasure+ perItemUnits;
     }else if( units == "qty"){
-        $('#h3_remaining').find('span')[0].innerHTML = name+" "+perItemMeasure+" "+perItemUnits+" x "+remainingItems;
+        $('#h3_remaining').find('span')[0].innerHTML = itemName+" "+perItemMeasure+" "+perItemUnits+" x "+remainingItems;
     }else{
-        $('#h3_remaining').find('span')[0].innerHTML = name+" "+remainingItems+" "+ units;
+        $('#h3_remaining').find('span')[0].innerHTML = itemName+" "+remainingItems+" "+ units;
     }
 }
 
@@ -1648,7 +1623,7 @@ function editInventoryItem(itemId){
         	hideLoader();
             console.log("Item updated successfully");
             $('#subtract_units').find('input').val('');
-            setEditRemainingText(itemUnits, remainingItems, data.perItemMeasure, data.perItemUnits);
+            setEditRemainingText(name, itemUnits, remainingItems, data.perItemMeasure, data.perItemUnits);
         }).catch(function(error){
         	hideLoader();
             console.error(error);
@@ -1826,9 +1801,9 @@ function isCurrentMonth(inputDate){
   }  
 }
 
-/*==========================================
-				Multi Page
-==========================================*/
+/*==============================================================================
+				                    Multi Page
+==============================================================================*/
 function showLoader(){
 	var loaderHtml = '<div id="loader"><div></div><h4 id="progress"></h4></div>';
 	if ($('body').find('#loader').length == 0) {
