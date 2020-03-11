@@ -462,22 +462,22 @@ function loadMenuItems (subCategory){
         Unavailable = "selected";
       }
 			var html = '<div class="item">\
-		                    <div class="add-ingredients">\
-		                      <button type="button" id="viewAddIngredients" class="add-ingred-btn">Ingredients</button>\
-		                    </div>\
-		        			<h3>'+name+'</h3>\
-        					<p>'+description+'</p>\
-        					<div class="price-and-edit">\
-        						<span class="price">R'+price+'</span>\
+							<div class="add-ingredients">\
+								<button type="button" id="viewAddIngredients" class="add-ingred-btn">Ingredients</button>\
+							</div>\
+							<h3>'+name+'</h3>\
+							<p>'+description+'</p>\
+							<div class="price-and-edit">\
+								<span class="price">R'+price+'</span>\
 								<select name="name" class="item-availability" id="availability">\
-								  <option '+available+'>Available</option>\
-								  <option '+Unavailable+'>Unavailable</option>\
+									<option '+available+'>Available</option>\
+									<option '+Unavailable+'>Unavailable</option>\
 								</select>\
-        						<a class="edit-item">Edit</a>\
-        						<p hidden id="doc_id">'+doc.id+'</p>\
-		        			</div>\
-                  			<button class="remove-item-btn"><i class="fa fa-times"></i></button>\
-        				</div>'
+								<a class="edit-item">Edit</a>\
+								<p hidden id="doc_id">'+doc.id+'</p>\
+							</div>\
+							<button class="remove-item-btn"><i class="fa fa-times"></i></button>\
+						</div>'
         	$('#menuItems').append(html);
 		});
 	});
@@ -503,9 +503,9 @@ function loadMenuItems (subCategory){
 		                                    <span class="units-added">${ingredient.units}</span> of 
 		                                    <span class="ingred-added">${ingredient.name}</span> added in 
 		                                    <span>${itemName}</span>
-
 		                                    <span class="w3-right remove-added-ingred">X</span>
 		                                </h4>
+		                                <p hidden id="ingred_id">${ingredient.id}</p>
 		                            </li>`;
 		            $('#ingredients_list').append(Ingredient);
 	        	}
@@ -605,6 +605,7 @@ function loadMenuItems (subCategory){
                                 </h4>
                                 <p hidden id="ingred_id">${ingred_id}</p>
                             </li>`;
+            console.log(Ingredient);
             $('#ingredients_list').append(Ingredient);
             $( "#ingred_qty" ).val('');
         });
@@ -625,6 +626,7 @@ function loadMenuItems (subCategory){
         		var qty = $(child).find('.qty-added').text();
         		var units = $(child).find('.units-added').text();
         		var id = $(child).find('#ingred_id').text();
+        		console.log(child);
         		var ingredient = {name: name, qty: qty, units: units, id: id};
         		newIngredients.push(ingredient);
         	}
@@ -1736,37 +1738,35 @@ function getItems(){
                 }else{
                     remaining = remainingItems+" of "+lastRefilTotal;
                 }
-                var html = `
-                            <div class="item">
-								<div class="overlay">
-									<button type="button" class="remove-item w3-right" id="remove-item"><i class="fa fa-trash-o"></i></button>
-									<div class="action-btns align-middle text-center">
-										<button type="button" class="history" id="viewItemHistory">i</button>
-										<button type="button" id="viewRefill">Refill</button>
-										<button type="button" id="viewEdit">Edit</button>
-									</div>
-								</div>
-								<div class="item-content">
-									<h4><span class="last-update-date">${lastRefillDate}</span></h4>
-									<div class="name-and-remaining">
-										<div class="col-12">
-											<h2 class="text-center">${name}</h2>
-										</div>
-										<div class="col-12 text-center">
-											<p class="item-remaining">${remaining}</p>
-										</div>
-									</div>
-								</div>
-							</div>`;
-                $('.invetory-items').append(html);
+                var html = `<div class="item">
+              								<div class="overlay">
+              									<button type="button" class="remove-item w3-right" id="remove-item"><i class="fa fa-trash-o"></i></button>
+              									<div class="action-btns align-middle text-center">
+              										<button type="button" class="history" id="viewItemHistory">i</button>
+              										<button type="button" id="viewRefill">Refill</button>
+              										<button type="button" id="viewEdit">Edit</button>
+              									</div>
+              								</div>
+              								<div class="item-content">
+              									<h4><span class="last-update-date">${lastRefillDate}</span></h4>
+              									<div class="name-and-remaining">
+              										<div class="col-12">
+              											<h2 class="text-center">${name}</h2>
+              										</div>
+              										<div class="col-12 text-center">
+              											<p class="item-remaining">${remaining}</p>
+              										</div>
+              									</div>
+              								</div>
+              							</div>`;
+        $('.invetory-items').append(html);
 
-                $('#inventory .content .invetory-items .item').addClass('white-bg');
+        $('#inventory .content .invetory-items .item').addClass('white-bg');
 
-                if(parseInt(remaining) <= parseInt(lowerLimit.limitValue)) {
-                    $('#inventory .content .invetory-items .item').removeClass('white-bg');
-                    $('#inventory .content .invetory-items .item').addClass('red-bg');
-                }
-               
+        if(parseInt(remaining) <= parseInt(lowerLimit.limitValue)) {
+            $('#inventory .content .invetory-items .item').removeClass('white-bg');
+            $('#inventory .content .invetory-items .item').addClass('red-bg');
+        }
 			});
 		}else{
 			$('.invetory-items').empty();
