@@ -40,7 +40,7 @@
             <ul>
                 <li>
                     <a class="active-bg">
-                        <i class="fa fa-home fa-2x"></i>
+                        <i class="fa fa-bars fa-2x"></i>
                         <span class="nav-text">
                            Categories
                         </span>
@@ -62,16 +62,23 @@
                 </li>  
             </ul>
         </nav>
-
+            
+            
         <div class="content">
         	<div class="header">
         		Categories / <span id="main_name"> </span> 
-        		<a class="w3-right" id="add_inventory_item">Add Item</a>
+        		<a class="w3-right" id="add_inventory_item">
+                    Add Item
+                </a>
         	</div>
         	<div class="invetory-items">
 
         	</div>
 
+            <!-- This button is for adding items and it only displays on mobile -->
+            <div class="mobile-add-btn w3-hide-large w3-hide-medium">
+                <a id="add_inventory_item_mobile"><i class="fa fa-plus fa-2x"></i></a>
+            </div>
         	<!-- =============================================================================
         				++++++++++++++++++++++++++++++++++++++++++++++++++++++
         								Adding Category Modal
