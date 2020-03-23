@@ -1,6 +1,6 @@
-/*=====================================
-      Global Variables
-======================================*/
+/*==============================================================================
+                                Global Variables
+==============================================================================*/
 var employeesList = [];
 var SignedUser = null;
 var adminsList = [];
@@ -13,13 +13,16 @@ var category = null;
 var category_location = null;
 var itemId = null;
 var categoriesMap = new Map();
+const massUnits = ["kg", "g", "mg"];
+const liquidUnits = ["kl", "l", "ml"];
+const allUnits = ["kg", "g", "mg", "kl", "l", "ml", "qty"];
 var d = new Date();
 d.setHours(0,0,0,0);
 
 
-/*=====================================
-    initialize firebase
-======================================*/
+/*==============================================================================
+                                initialize firebase
+==============================================================================*/
 const firebaseConfig = {
     apiKey: "AIzaSyB-ONpEfGsObnhbnEWoczi7KYnWw7lJQYA",
     authDomain: "smartserve-9e1e5.firebaseapp.com",
@@ -36,9 +39,9 @@ const Inventory = db.collection("LaPiazzaInventory");
 const MenuRef = db.collection("LaPiazzaMenu");
 
 
-/*=====================================
-  Loading appropriate functions
-======================================*/
+/*==============================================================================
+                        Loading appropriate functions
+==============================================================================*/
 window.onload = function(){
   db.collection("Employees").onSnapshot(function(querySnapshot) {
     employeesList = [];
@@ -103,9 +106,9 @@ window.onload = function(){
   });
 }
 
-/*=====================================
-              Login
-======================================*/
+/*==============================================================================
+                                    Login
+==============================================================================*/
 function loadLogIn (){
   $('#login_btn').on('click', function(){
     login();
@@ -150,9 +153,9 @@ function login (){
   }
 }
 
-/*=====================================
-        Menu
-======================================*/
+/*==============================================================================
+                                        Menu
+==============================================================================*/
 function loadMenu (){
   //Load the Menu page
   loadMainCategories();
@@ -489,19 +492,20 @@ function loadMenuItems (subCategory){
         showLoader();
 
         MenuRef.doc(itemId).get().then((menuitem) =>{
+            $('#ingredients_list').empty();
         	ingredients = menuitem.data().ingredients;
         	if (ingredients != null) {
         		for (var i = 0; i < ingredients.length; i++) {
 	        		var ingredient = ingredients[i];
 	        		var Ingredient = `<li>
 		                                <h4>
-		                                    <span class="qty-added">${ingredient.quantity}</span>
+		                                    <span class="qty-added">${ingredient.qty}</span>
 		                                    <span class="units-added">${ingredient.units}</span> of 
 		                                    <span class="ingred-added">${ingredient.name}</span> added in 
 		                                    <span>${itemName}</span>
-
 		                                    <span class="w3-right remove-added-ingred">X</span>
 		                                </h4>
+		                                <p hidden id="ingred_id">${ingredient.id}</p>
 		                            </li>`;
 		            $('#ingredients_list').append(Ingredient);
 	        	}
@@ -746,9 +750,9 @@ function prepareStaffTable (employeesList){
   }
 }
 
-/*=====================================
-        Reports
-======================================*/
+/*==============================================================================
+                                    Reports
+==============================================================================*/
 function loadReports (){
   var ad = new Date();
   var n = ad.getMonth();
@@ -1072,39 +1076,36 @@ function loadInventory (){
     //------------------------- INVOKE --------------------------
     $('.invetory-items').on('click', '#viewItemHistory', function(){
         var modal = document.getElementById("itemHistory");
+        // var current_date = new Date();
+        // var formatted_date = moment(current_date).format("YYYY");
         modal.style.display = "block";
         var id = $(this).closest('.item').find('h2')[0].innerHTML;
         $("#item-name-history").text(id+" History");
         Inventory.doc(id).get().then(function(item){
             $('#view-history').empty();
             var refsArray = item.get("Refils");
+            var monthOpening = item.get("monthOpenings");
             var data = item.data();
+
             for(var i = 0; i < refsArray.length; i++){
-                if(isCurrentMonth(refsArray[i].lrDate.toDate())){
-
-                    var change = "";
-                    var openingBalArr = item.get("monthOpenings");
-                    var openingDate = moment(openingBalArr[openingBalArr.length - 1].date.toDate()).format("DD MMM");
-                    var openingBal = openingBalArr[openingBalArr.length - 1].openingBallance;
-                    $('.history .date').html('('+openingDate+')');
-                    $('.history .opening_bal').html(openingBal+data.unitOfMeasure);
-
-                    if(refsArray[i].lrChange.includes("-")){
-                        change = "<span class='loss'>"+refsArray[i].lrChange+"</span>"
-                    }else if(refsArray[i].lrChange.includes("+")){
-                        change = "<span class='added'>"+refsArray[i].lrChange+"</span>"
-                    }
-                    $('#view-history').append(`
-                        <tr>
-                            <td>${refsArray[i].person}</td>
-                            <td class="date">${moment(refsArray[i].lrDate.toDate()).format("MMM DD")}</td>
-                            <td>${change}</td>
-                        </tr>
-                    `);
+                var change = "";
+                if(refsArray[i].lrChange.includes("-")){
+                    change = "<span class='loss'>"+refsArray[i].lrChange+"</span>"
+                }else if(refsArray[i].lrChange.includes("+")){
+                    change = "<span class='added'>"+refsArray[i].lrChange+"</span>"
                 }
+                $('#view-history').append(`
+                    <tr>
+                        <td>${refsArray[i].person}</td>
+                        <td class="date">${moment(refsArray[i].lrDate.toDate()).format("MMM DD")}</td>
+                        <td>${change}</td>
+                    </tr>
+                `);
             }
 
-            $('.available').find('span').text(data.remainingItems+data.unitOfMeasure);
+            $('.opening_bal').html(monthOpening[monthOpening.length - 1].openingBallance+data.unitOfMeasure);
+            $('.history .date').html("("+moment(monthOpening[monthOpening.length - 1].date.toDate()).format("MMM DD")+")");
+            $('.available').find('span').text(item.data().remainingItems+data.unitOfMeasure);
         });
         window.onclick = function(event) {
             if(event.target == modal) {
@@ -1115,38 +1116,119 @@ function loadInventory (){
 
     $('.invetory-items').on('click', '#viewRefill', function(){
         var modal = document.getElementById("refillItem");
+        var arr = null;
+        var error = null;
+        var itemUnits = null;
+        var monthOpenings = null;
+        var remainingItems = null;
         modal.style.display = "block";
-
         var id = $(this).closest('.item').find('h2')[0].innerHTML;
 
         Inventory.doc(id).get().then(function(refil){
             var data = refil.data();
-            var remainingItems = data.remainingItems;
-
+            arr = data.Refils;
+            remainingItems = data.remainingItems;
+        	monthOpenings = data.monthOpenings;
+            remainingItems = data.remainingItems;
+            itemUnits = data.unitOfMeasure;
+            $('#refill_total').text(remainingItems);
             $('#refillItem').find('h4')[0].innerHTML = id;
 
             var remaining = "";
-            var measureUnits = data.unitOfMeasure
-            if(measureUnits == "kg" || measureUnits == "mg" || measureUnits == "g"){
+            var measureUnits = data.unitOfMeasure;
+            if(massUnits.includes(measureUnits)){
                 remaining = remainingItems+measureUnits;
                 $('#refil-measures').html(`
                     <option selected disabled>- select measurements -</option>
                     <option>kg</option>
                     <option>mg</option>
-                    <option>g</option>
-                    <option>lbs</option>
-                `);
-            }else if(measureUnits == "ml" || measureUnits == "l" || measureUnits == "qty"){
+                    <option>g</option>`
+                );
+            }else if(liquidUnits.includes(measureUnits) || measureUnits == "qty"){
                 remaining = remainingItems;
                 $('#refil-measures').html(`
                     <option selected disabled>- select measurements -</option>
                     <option>qty</option>`
                 );
             }
+            $('#refil-measures').val(measureUnits);
             $('.remaining').find('span')[0].innerHTML = remaining;
+
+	        $('#amount-refill').on('keyup', function(){
+	        	var input = $(this).val();
+	        	if (remainingItems == null || remainingItems == "") {
+	        		$('#refill_total').text(input);
+	        	}else{
+	        		var newTotal
+	        		if (measureUnits == "qty") {
+	        			newTotal = (+remainingItems + +input);
+	        		}else{
+	        			newTotal = (+remainingItems + +input).toFixed(2);
+	        		}
+	        		$('#refill_total').text(newTotal);
+	        		$('.remaining').find('span')[0].innerHTML = newTotal;
+	        	}
+	        });
         }).catch(function(error){
             console.error(error);
         });
+
+        $('.add-refill').on('click', function(e){
+	        e.preventDefault();
+	        var measurements = $('#refil-measures').val();
+	        var input = $('#amount-refill').val();
+	        var id = $(this).closest('#refillItem').find('#item_name')[0].innerHTML;
+	        if(input == null || input < 1 || isNaN(input)){
+	        	error = "Enter A number greater than zero";
+	        	showSnackbar(error);
+	        	return;
+	        }
+	        if(measurements == null){
+	            error = "Please select the measurement unit";
+	            showSnackbar(error);
+	            return;
+	        }
+
+	        if (itemUnits == null) {
+            	showSnackbar("Units not set... Please Try again");
+            	return;
+            }
+
+            if (id == null || remainingItems == null || monthOpenings == null || arr == null) {
+            	showSnackbar("Invalid data... Please try again");
+            	return;
+            }
+	            
+            var lrDate = new Date();
+            var person = SignedUser.name;
+            var lrChange = "+"+input+measurements;
+            var lrTotal = remainingItems;
+            var lrReason = "Refill";
+    
+            if(measurements == "qty" && itemUnits == "qty"){
+                lrTotal = (+lrTotal + +input).toFixed(0);
+                remainingItems = (+remainingItems + +input).toFixed(0);
+            }else{
+                lrTotal = (+lrTotal + +convert(input, measurements, itemUnits)).toFixed(2);
+                remainingItems = (+remainingItems + +convert(input, measurements, itemUnits)).toFixed(2);
+            }
+    
+            var obj = {
+                lrChange: lrChange,
+                lrDate: lrDate,
+                lrReason: lrReason,
+                lrTotal: lrTotal,
+                person: person
+            };
+
+            arr.push(obj);
+            var recentMonthOpening = monthOpenings[monthOpenings.length - 1];
+            if (!isCurrentMonth(recentMonthOpening.date.toDate())) {
+            	var newMonthOpening = {date: date, openingBallance: remainingItems.toFixed(2)};
+            	monthOpenings.push(newMonthOpening);
+            }
+	        refillInventoryItem(id, remainingItems, monthOpenings, arr);
+	    });
 
         window.onclick = function(event) {
             if(event.target == modal) {
@@ -1159,60 +1241,44 @@ function loadInventory (){
         var id = $(this).closest('.item').find('h2')[0].innerHTML;
         itemId = id;
         var modal = document.getElementById("editItem");
-        $("#item-add-status").empty();  
+
         $('#editItem').find('h3')[0].innerHTML = "Edit Item";
         $('#editItem').find('.update-Item')[0].innerHTML = "Edit Item";
         $('#add_units').hide();
         $('#h3_remaining').show();
         $('#subtract_units').show();
         modal.style.display = "block";
-        
+
+        Inventory.doc(id).get().then(function(data){
+            var item = data.data();
+            var units = item.unitOfMeasure;
+            setEditRemainingText(item.name, units, item.remainingItems, item.perItemMeasure, item.perItemUnits);
+            $('#item_name_input').val(item.name);
+            $('#item-units').val(item.perItemUnits);
+            $('#item-measure').val(item.perItemMeasure);
+        	createMeasureUnits(units);
+            createPerItemUnits(item.perItemUnits)
+
+            $('#item-units').val(item.perItemUnits);
+            $('#item-category').val(item.category);
+        }).catch(function(error){
+            console.error(error);
+        });
+
         window.onclick = function(event) {
             if(event.target == modal) {
             	modal.style.display = "none";
             }
         }
-        Inventory.doc(id).get().then(function(data){
-            var item = data.data();
-            var units = item.unitOfMeasure;
-            if(units == "ml" || units == "l"){
-                $('#h3_remaining').find('span')[0].innerHTML = item.remainingItems+" x "+item.measurePerItem+ item.perItemUnits;
-            }else if( units == "qty"){
-                $('#h3_remaining').find('span')[0].innerHTML = item.name+" x "+item.remainingItems+" "+ units;
-            }else{
-                $('#h3_remaining').find('span')[0].innerHTML = item.name+" "+item.remainingItems+" "+ units;
-            }
-            
-            $('#item_name_input').val(item.name);
-            $('#item-units').val(item.perItemUnits);
-            $('#item-measure').val(item.measurePerItem);
-            if(units == "kg" || units == "mg" || units == "lbs"){
-                $('#measurements').empty();
-                var html = `<option selected disabled>- Select Measurements -</option>
-                            <option>kg</option>
-                            <option>g</option>
-                            <option>mg</option>
-                        <option>lbs</option>`;
-                $('#measurements').html(html);
-            }else{
-                $('#measurements').empty();
-                var html = `<option selected disabled>- Select Measurements -</option>
-                            <option>qty</option>
-                            <option>l</option>
-                        	<option>ml</option>`; 
-                $('#measurements').html(html);
-            }
-            $('#item-units').val(item.perItemUnits);
-            $('#item-category').val(item.category);
-        }).then(function(){
 
-        }).catch(function(error){
-            console.error(error);
+        $('#btCloseEdit').on('click', function(){
+        	modal.style.display = "none";
         });
     });
 
     $('#add_inventory_item').on('click', function(){
         var modal = document.getElementById("editItem");
+        var measurementUnit = $('#units-of-measurement').val();
         $('#editItem').find('h3')[0].innerHTML = "Add Item";
         $('#editItem').find('.update-Item')[0].innerHTML = "Add Item";
         $('#item_name_input').val('');
@@ -1224,6 +1290,8 @@ function loadInventory (){
         $('#h3_add').show();
         $('#add_units').show();
         modal.style.display = "block";
+        createPerItemUnits(measurementUnit);
+        createMeasureUnits(measurementUnit);
 
         window.onclick = function(event) {
             if(event.target == modal) {
@@ -1263,18 +1331,15 @@ function loadInventory (){
         }
     });
 
-    $('#closeAddCategory').on('click', function(){
-        var modal = document.getElementById("addInventoryCategory");
-        modal.style.display = "none";
+    $('.close').on('click', function(){
+        var close = $(this).closest('.modal').attr('id');
+        var modal = document.getElementById(close);
+        modal.style.display = "none";   
     });
 
-    $('#closeEdit').on('click', function(){
-        var modal = document.getElementById("editItem");
-        modal.style.display = "none";
-    });
-
-    $('#closeHistory').on('click', function(){
-        var modal = document.getElementById("refillItem");
+    $('.cancel').on('click', function(){
+        var cancel = $(this).closest('.modal').attr('id');
+        var modal = document.getElementById(cancel);
         modal.style.display = "none";   
     });
     //------------------------ ADD ----------------------------------
@@ -1284,41 +1349,40 @@ function loadInventory (){
         var categName = $('#category-name').val().trim();
         console.log(categName.length);
         var addCategStatus = $('.add-category').find('h4')[0];
-        $("#item-add-status").empty();
-        $('#item-total').empty();
-        if(categName != null && categName.length >= 3){
-            var categArray = [];
-            Inventory.doc('Categories').get().then(function(categories){
-                categArray = categories.get("categories");
-                if(categArray == null){
-                    categArray = [];
-                    categArray.push(categName);
-                    Inventory.doc('Categories').set({categories: categArray})
-                    .then(function(){
-                        addCategStatus.style.color = "#008000";
-                        addCategStatus.innerHTML = "Category Successfully Added";
-                        $('#category-name').val("");
-                    }).catch(function(){
-                        addCategStatus.style.color = "#800000";
-                        addCategStatus.innerHTML = "Error while adding category";
-                    });	
-                }else{
-                    categArray.push(categName);
-                    Inventory.doc('Categories').update({categories: categArray})
-                    .then(function(){
-                        addCategStatus.style.color = "#008000";
-                        addCategStatus.innerHTML = "Category Successfully Added";
-                        $('#category-name').val("");
-                    }).catch(function(){
-                        addCategStatus.style.color = "#800000";
-                        addCategStatus.innerHTML = "Error while adding category";
-                    });	
-                }
-            });
-        }else{
+
+        if(categName == null || categName.length < 3){
         	addCategStatus.style.color = "#800000";
         	addCategStatus.innerHTML = "You need to add atleast 3 letters";
+        	return;
         }
+        var categArray = [];
+        Inventory.doc('Categories').get().then(function(categories){
+            categArray = categories.get("categories");
+            if(categArray == null){
+                categArray = [];
+                categArray.push(categName);
+                Inventory.doc('Categories').set({categories: categArray})
+                .then(function(){
+                    addCategStatus.style.color = "#008000";
+                    addCategStatus.innerHTML = "Category Successfully Added";
+                    $('#category-name').val("");
+                }).catch(function(){
+                    addCategStatus.style.color = "#800000";
+                    addCategStatus.innerHTML = "Error while adding category";
+                });	
+            }else{
+                categArray.push(categName);
+                Inventory.doc('Categories').update({categories: categArray})
+                .then(function(){
+                    addCategStatus.style.color = "#008000";
+                    addCategStatus.innerHTML = "Category Successfully Added";
+                    $('#category-name').val("");
+                }).catch(function(){
+                    addCategStatus.style.color = "#800000";
+                    addCategStatus.innerHTML = "Error while adding category";
+                });	
+            }
+        });
     });
 
     //========================[ITEM]================================
@@ -1326,12 +1390,14 @@ function loadInventory (){
     var measure = 0;
     var qty = 1;
     var total = 0;
-    var units = "kg";
+    var units = "qty";
     $('#item-total').text(total);	
 
-    $('#item-units').change(function(){
-        units = $('#item-units').val();
-        $('#item-total').empty();
+    $('#units-of-measurement').change(function(){
+        units = $(this).val();
+        createMeasureUnits(units);
+        createPerItemUnits(units);
+        $('#item-total').text("");
     });
 
     $('#item-measure').on('keyup', function(){
@@ -1339,14 +1405,6 @@ function loadInventory (){
         if(isNaN(measure)){
             measure = 0;
         }
-        $('#item-total').empty();
-        total = measure * qty;
-        if(units == "l" || units == "ml" || units == "qty"){
-            total = "";
-        }else{
-            total = measure * qty +" "+units;
-        }
-        $('#item-total').text(total);
     });
 
     $('#item-quantity').on('keyup', function(){
@@ -1354,8 +1412,8 @@ function loadInventory (){
         if(isNaN(qty)){
             qty = 0;
         }
-        if(units == "l" || units == "ml" || units == "qty"){
-            total = "";
+        if(units == "qty"){
+            total = qty;
         }else{
             total = +measure * +qty + " " + units;
         }
@@ -1364,127 +1422,47 @@ function loadInventory (){
 
     $('.update-Item').on('click', function(e){
         e.preventDefault();
-        var action = $(this).text();
-        
         var error = null;
+        var action = $(this).text();
         var itemName = $('#item_name_input').val();
-        
         var itemCategory = $('#item-category').val();
         var perItemUnits = $('#item-units').val();
         var lowLimitValue = $('#low_limit').val();
-        var itemMeasure = $('#item-measure').val();
+        var perItemMeasure = $('#item-measure').val();
         var itemQuantity = $('#item-quantity').val();
         var lowLimitUnits = $('#low_limit_units').val();
         var unitsOfMeasurement = $('#units-of-measurement').val();
         var lowerLimit = {limitValue: lowLimitValue, limitUnits: lowLimitUnits};
         var monthOpenings = [];
 
-        if(itemCategory != null){
-            if(itemName != null && itemName.length > 2){
-                if(action == "Add Item"){   
-                    if(itemQuantity != null && itemQuantity > 0){
-                        var docName = itemName+" "+itemMeasure+perItemUnits;
-                        var arrayOfObject = [];
-                        var person = SignedUser.name;
-                        var lrDate = new Date();
-                        var lrChange = "";
-                        var lrTotal = 0;
-                        var lrReason = "Adding new item";
-                        if(perItemUnits === "qty"){
-                            docName = itemName;
-                        }
+        if(itemCategory == null){
+        	error = "Item name should be characters greater than 2";
+        	$('#item-add-status').html(error);
+        	return;
+        }
 
-                        if(itemMeasure != null && itemMeasure > 0){
-                            if(unitsOfMeasurement === "qty"){
-                                lrTotal = itemQuantity;
-                            }else{
-                                lrTotal = itemQuantity * itemMeasure; 
-                                lrTotal = convert(lrTotal, perItemUnits, unitsOfMeasurement);
-                            }
-                        	var monthOpening = {date: lrDate, openingBallance: lrTotal};
-                        	monthOpenings.push(monthOpening);
+        if(itemName == null || itemName.length < 3){
+        	error = "Item Category should be selected";
+        	$('#item-add-status').html(error);
+        	return;
+        }
 
-                            lrChange = "+"+lrTotal+unitsOfMeasurement;
-                            var obj = {person: person, lrDate: lrDate, lrChange: lrChange, lrTotal: lrTotal, lrReason: lrReason};
-                            arrayOfObject.push(obj);
-                            
-                            Inventory.doc(docName).set({
-                                category: itemCategory,
-                                name: itemName,
-                                perItemUnits: perItemUnits,
-                                Refils: arrayOfObject,
-                                remainingItems: lrTotal,
-                                itemMeasure: itemMeasure,
-                                unitOfMeasure: unitsOfMeasurement,  
-                                lowerLimit: lowerLimit,
-                                monthOpenings: monthOpenings
-                            }).then(function(){
-                                $("#item-add-status").html("data added succefully");
-                                $('#item_name_input').val("");
-                                $('#item-units').val("");
-                                $('#item-measure').val("");
-                                $('#item-quantity').val("");
-                                $('#low_limit').val("");
-                            }).catch(function(error){
-                                console.error(error);
-                            });
-                        }else{
-                            error = "Item measurement should be a number greater than zero";
-                        }
-                    }else{
-                    	error = "Item Quantity should be a number greater than zero";
-                    }
-                }else if(action == "Edit Item"){
-                    Inventory.doc(itemId).get().then(function(item){
-                        var subtract = $('#subtract_units').find('input').val();
-                        var name = $('#item_name').val();
-                        var measurements = $('#measurements').val();
-                        var itemCategory = $('#item-category').val();
-                        var arr = item.get("Refils");
-                        var data = item.data();
-                        var remainingItems = data.remainingItems;
-                        var lrDate = new Date();
-                        var person = SignedUser.name;
-                        var lrChange = "-"+subtract+measurements;
-                        var lrTotal = data.remainingItems;
-                        var lrReason = "Subtract";
-                        var itemUnits = data.unitOfMeasure;
-                        
-                        if(itemUnits == "qty" && measurements == "qty"){
-                        	lrTotal -= subtract;
-                        	remainingItems -= subtract;                  
-                        }else{
-                        	lrTotal -= convert(subtract, measurements, itemUnits).toFixed(2);
-                            remainingItems -= convert(subtract, measurements, itemUnits).toFixed(2);
-                        }
-
-                        var obj ={
-                            person: person, 
-                            lrDate: lrDate, 
-                            lrChange: lrChange, 
-                            lrTotal: lrTotal, 
-                            lrReason: lrReason                       
-                        };
-                        arr.push(obj);
-                        Inventory.doc(itemId).update({
-                            name: name,
-                            category: itemCategory,
-                            remainingItems: remainingItems,
-                            Refils: arr
-                        }).then(function(){
-                            console.log("Item updated successfully");
-                        }).catch(function(error){
-                            console.error(error);
-                        });
-                    }).catch(function(error){
-                        console.error(error);
-                    });
-                }
-            }else{
-                error = "Item name should be characters greater than 2";
-            }
-        }else{
-            error = "Item Category should be selected";
+    	showLoader();
+	    if(action == "Add Item"){   
+	        if(itemQuantity == null || itemQuantity < 1){
+				error = "Item Quantity should be a number greater than zero";
+				$('#item-add-status').html(error);
+	        	return;
+			}
+			if(perItemMeasure == null || perItemMeasure < 1){
+		        error = "Item measurement should be a number greater than zero";
+		        $('#item-add-status').html(error);
+	        	return;
+		    }
+            addInventoryItem(itemName, itemCategory, itemQuantity, perItemMeasure, perItemUnits,
+             unitsOfMeasurement, monthOpenings, lowerLimit);
+        }else if(action == "Edit Item"){
+            editInventoryItem(itemId);
         }
 
         if(error != null){
@@ -1492,70 +1470,6 @@ function loadInventory (){
         }else{
             $('#item-add-status').html("");
         }
-    });
-
-    //========================[ITEM REFILLS]================================
-
-    $('.add-refill').on('click', function(e){
-        e.preventDefault();
-        var error = null;
-        var measurements = $('#refil-measures').val();
-        var input = $('#amount-refill').val();
-        var id = $(this).closest('#refillItem').find('#item-name')[0].innerHTML;
-        
-        if(input != null && input > 0 && !isNaN(input)){
-            if(measurements != null){
-                error = "<div class='text-danger'>Please select the measurements</div>";
-            }else{
-                Inventory.doc(id).get().then(function(item){
-                    var data = item.data();
-                	var monthOpenings = data.monthOpenings;
-                    var arr = item.get("Refils");
-                    var itemUnits = data.unitOfMeasure;
-                    var remainingItems = data.remainingItems;
-                    var lrDate = new Date();
-                    var person = SignedUser.name;
-                    var lrChange = "+"+input+measurements;
-                    var lrTotal = data.remainingItems;
-                    var lrReason = "Refill";
-            
-                    if(measurements == "qty" && itemUnits == "qty"){
-                        lrTotal += input;
-                        remainingItems += input;
-                    }else{
-                        lrTotal += convert(input, measurements, itemUnits).toFixed(2);
-                        remainingItems += convert(input, measurements, itemUnits).toFixed(2);
-                    }
-            
-                    var obj = {
-                        lrChange: lrChange,
-                        lrDate: lrDate,
-                        lrReason: lrReason,
-                        lrTotal: lrTotal,
-                        person: person
-                    };
-
-                    arr.push(obj);
-                    var recentMonthOpening = monthOpenings[monthOpenings.length - 1];
-                    if (!isCurrentMonth(recentMonthOpening.date)) {
-                    	var newMonthOpening = {date: date, openingBallance: remainingItems};
-                    	monthOpenings.push(newMonthOpening);
-                    }
-
-                    Inventory.doc(id).update({
-                        remainingItems: remainingItems,
-                        monthOpenings: monthOpenings,
-                        Refils: arr
-                    }).then(function(){
-                        console.log("Item refilled");
-                    }).catch(function(error){
-                        console.error(error);
-                    });
-                });
-            }
-        }else{
-            error = "<div class='text-danger'>Enter A number greater than zero</div>";
-        } 
     });
 
     //---------------------------- DELETE ITEM ---------------------------------
@@ -1582,6 +1496,178 @@ function loadInventory (){
         $('#main_name').text($(this).text());
         category = $(this).text();
         getItems();
+    });
+}
+
+function setEditRemainingText(itemName, units, remainingItems, perItemMeasure, perItemUnits){
+	if(liquidUnits.includes(units)){
+        $('#h3_remaining').find('span')[0].innerHTML = remainingItems+" x "+perItemMeasure+ perItemUnits;
+    }else if( units == "qty"){
+        $('#h3_remaining').find('span')[0].innerHTML = itemName+" "+perItemMeasure+" "+perItemUnits+" x "+remainingItems;
+    }else{
+        $('#h3_remaining').find('span')[0].innerHTML = itemName+" "+remainingItems+" "+ units;
+    }
+}
+
+function createPerItemUnits(measurementUnit){
+    $('#item-units').empty();
+	if(massUnits.includes(measurementUnit)){
+        for (var i = massUnits.length - 1; i >= 0; i--) {
+        	var unit = massUnits[i];
+            $('#item-units').append(new Option(unit, unit));
+        }
+    }else if(liquidUnits.includes(measurementUnit)){
+        for (var i = liquidUnits.length - 1; i >= 0; i--) {
+        	var unit = liquidUnits[i];
+            $('#item-units').append(new Option(unit, unit));
+        }
+    }else{
+        for (var i = allUnits.length - 1; i >= 0; i--) {
+        	var unit = allUnits[i];
+            $('#item-units').append(new Option(unit, unit));
+        }
+    }
+}
+
+function createMeasureUnits(units){
+	$('#measurements').empty();
+	$('#low_limit_units').empty();
+
+    if(massUnits.includes(units)){
+        for (var i = massUnits.length - 1; i >= 0; i--) {
+        	var unit = massUnits[i];
+            $('#measurements').append(new Option(unit, unit));
+            $('#low_limit_units').append(new Option(unit, unit));
+        }
+    }else if(liquidUnits.includes(units)){
+        for (var i = liquidUnits.length - 1; i >= 0; i--) {
+        	var unit = liquidUnits[i];
+            $('#measurements').append(new Option(unit, unit));
+            $('#low_limit_units').append(new Option(unit, unit));
+        }
+    }else{
+        $('#measurements').append(new Option("qty", "qty"));
+        $('#low_limit_units').append(new Option("qty", "qty"));
+    }
+}
+
+function addInventoryItem (itemName, itemCategory, itemQuantity, perItemMeasure,
+ perItemUnits, unitsOfMeasurement, monthOpenings, lowerLimit){
+	var docName = itemName+" "+perItemMeasure+perItemUnits;
+    var arrayOfObject = [];
+    var person = SignedUser.name;
+    var lrDate = new Date();
+    var lrChange = "";
+    var lrTotal = 0;
+    var lrReason = "Adding new item";
+    if(perItemUnits === "qty"){
+        docName = itemName;
+    }
+    if(unitsOfMeasurement === "qty"){
+        lrTotal = itemQuantity;
+    }else{
+        lrTotal = (itemQuantity * perItemMeasure).toFixed(2); 
+        lrTotal = convert(lrTotal, perItemUnits, unitsOfMeasurement);
+    }
+	var monthOpening = {date: lrDate, openingBallance: lrTotal.toFixed(2)};
+	monthOpenings.push(monthOpening);
+
+    lrChange = "+"+lrTotal;
+    var obj = {person: person, lrDate: lrDate, lrChange: lrChange, lrTotal: lrTotal.toFixed(2), lrReason: lrReason};
+    arrayOfObject.push(obj);
+    
+    Inventory.doc(docName).set({
+        category: itemCategory,
+        name: itemName,
+        perItemUnits: perItemUnits,
+        Refils: arrayOfObject,
+        remainingItems: lrTotal.toFixed(2),
+        perItemMeasure: perItemMeasure,
+        unitOfMeasure: unitsOfMeasurement,  
+        lowerLimit: lowerLimit,
+        monthOpenings: monthOpenings
+    }).then(function(){
+        $("#item-add-status").html(itemName + " " + perItemMeasure + perItemUnits + " added succefully");
+        $('#item-total').text('');
+        $('#item_name_input').val("");
+        $('#item-units').val("");
+        $('#item-measure').val("");
+        $('#item-quantity').val("");
+        $('#low_limit').val("");
+        hideLoader();
+        setTimeout(function(){
+        	$("#item-add-status").html("");
+        }, 5000);
+    }).catch(function(error){
+        console.error(error);
+        hideLoader();
+    });
+}
+
+function editInventoryItem(itemId){
+	Inventory.doc(itemId).get().then(function(item){
+        var subtract = $('#subtract_units').find('input').val();
+        var name = $('#item_name_input').val();
+        var measurements = $('#measurements').val();
+        var itemCategory = $('#item-category').val();
+        var arr = item.get("Refils");
+        var data = item.data();
+        var remainingItems = data.remainingItems;
+        var lrDate = new Date();
+        var person = SignedUser.name;
+        var lrChange = "-"+subtract+measurements;
+        var lrTotal = (data.remainingItems);
+        var lrReason = "Subtract";
+        var itemUnits = data.unitOfMeasure;
+        if(itemUnits == "qty" && measurements == "qty"){
+        	lrTotal -= subtract;
+        	remainingItems -= subtract;                  
+        }else{
+        	lrTotal -= convert(subtract, measurements, itemUnits).toFixed(2);
+            remainingItems -= convert(subtract, measurements, itemUnits).toFixed(2);
+        }
+
+        var obj ={
+            person: person, 
+            lrDate: lrDate, 
+            lrChange: lrChange, 
+            lrTotal: lrTotal.toFixed(2), 
+            lrReason: lrReason                       
+        };
+        arr.push(obj);
+        Inventory.doc(itemId).update({
+            name: name,
+            category: itemCategory,
+            remainingItems: remainingItems.toFixed(2),
+            Refils: arr
+        }).then(function(){
+        	hideLoader();
+            console.log("Item updated successfully");
+            $('#subtract_units').find('input').val('');
+            setEditRemainingText(name, itemUnits, remainingItems, data.perItemMeasure, data.perItemUnits);
+        }).catch(function(error){
+        	hideLoader();
+            console.error(error);
+        });
+    }).catch(function(error){
+    	hideLoader();
+        console.error(error);
+    });
+}
+
+function refillInventoryItem(id, remainingItems, monthOpenings, arr){
+	showLoader();
+	Inventory.doc(id).update({
+        remainingItems: remainingItems,
+        monthOpenings: monthOpenings,
+        Refils: arr
+    }).then(function(){
+        showSnackbar("Item refilled successfully");
+        $('#amount-refill').val('');
+        hideLoader();
+    }).catch(function(error){
+        showSnackbar(error.message);
+        hideLoader();
     });
 }
 
@@ -1642,33 +1728,41 @@ function getItems(){
                 var remainingItems = data.remainingItems;
                 var measurementUnit = data.unitOfMeasure;
                 var remaining = "";
+                var lowerLimit = item.get("lowerLimit");
                 if(measurementUnit == "kg" || measurementUnit == "mg" || measurementUnit == "g"){
                     remaining = remainingItems+measurementUnit+" of "+lastRefilTotal+measurementUnit;
                 }else{
                     remaining = remainingItems+" of "+lastRefilTotal;
                 }
-				var html = `<div class="item">
-								<div class="overlay">
-									<button type="button" class="remove-item w3-right" id="remove-item"><i class="fa fa-trash-o"></i></button>
-									<div class="action-btns align-middle text-center">
-										<button type="button" class="history" id="viewItemHistory">i</button>
-										<button type="button" id="viewRefill">Refill</button>
-										<button type="button" id="viewEdit">Edit</button>
-									</div>
-								</div>
-								<div class="item-content">
-									<h4><span class="last-update-date">${lastRefillDate}</span></h4>
-									<div class="name-and-remaining">
-										<div class="col-12">
-											<h2 class="text-center">${name}</h2>
-										</div>
-										<div class="col-12 text-center">
-											<p class="item-remaining">${remaining}</p>
-										</div>
-									</div>
-								</div>
-							</div>`;
-				$('.invetory-items').append(html);
+                var html = `<div class="item">
+              								<div class="overlay">
+              									<button type="button" class="remove-item w3-right" id="remove-item"><i class="fa fa-trash-o"></i></button>
+              									<div class="action-btns align-middle text-center">
+              										<button type="button" class="history" id="viewItemHistory">i</button>
+              										<button type="button" id="viewRefill">Refill</button>
+              										<button type="button" id="viewEdit">Edit</button>
+              									</div>
+              								</div>
+              								<div class="item-content">
+              									<h4><span class="last-update-date">${lastRefillDate}</span></h4>
+              									<div class="name-and-remaining">
+              										<div class="col-12">
+              											<h2 class="text-center">${name}</h2>
+              										</div>
+              										<div class="col-12 text-center">
+              											<p class="item-remaining">${remaining}</p>
+              										</div>
+              									</div>
+              								</div>
+              							</div>`;
+        $('.invetory-items').append(html);
+
+        $('#inventory .content .invetory-items .item').addClass('white-bg');
+
+        if(parseInt(remaining) <= parseInt(lowerLimit.limitValue)) {
+            $('#inventory .content .invetory-items .item').removeClass('white-bg');
+            $('#inventory .content .invetory-items .item').addClass('red-bg');
+        }
 			});
 		}else{
 			$('.invetory-items').empty();
@@ -1696,22 +1790,22 @@ function convert(value, fromUnit, toUnit){
 	const from_g = {kg: 0.001, g: 1, mg: 1000};
 	const from_mg = {kg: 0.000001, g: 0.001, mg: 1};
 
-	const liquidUnits = {kl: from_kl, l: from_l, ml: from_ml};
-	const massUnits = {kg: from_kg, g: from_g, mg: from_mg};
+	const liquidUnitsObj = {kl: from_kl, l: from_l, ml: from_ml};
+	const massUnitsObj = {kg: from_kg, g: from_g, mg: from_mg};
 
 	var returnValue = null;
-	if (massUnits.hasOwnProperty(fromUnit) && massUnits.hasOwnProperty(toUnit)) {
+	if (massUnitsObj.hasOwnProperty(fromUnit) && massUnitsObj.hasOwnProperty(toUnit)) {
 		massConversion();
-	}else if (liquidUnits.hasOwnProperty(fromUnit) && liquidUnits.hasOwnProperty(toUnit)) {
+	}else if (liquidUnitsObj.hasOwnProperty(fromUnit) && liquidUnitsObj.hasOwnProperty(toUnit)) {
 		liquidConversion();
 	}
 
 	function massConversion(){
-		returnValue = +value * massUnits[fromUnit][toUnit];
+		returnValue = +value * massUnitsObj[fromUnit][toUnit];
 	}
 
 	function liquidConversion(){
-		returnValue = +value * liquidUnits[fromUnit][toUnit];
+		returnValue = +value * liquidUnitsObj[fromUnit][toUnit];
 	}
 
 	return returnValue;
@@ -1728,9 +1822,9 @@ function isCurrentMonth(inputDate){
   }  
 }
 
-/*==========================================
-				Multi Page
-==========================================*/
+/*==============================================================================
+				                    Multi Page
+==============================================================================*/
 function showLoader(){
 	var loaderHtml = '<div id="loader"><div></div><h4 id="progress"></h4></div>';
 	if ($('body').find('#loader').length == 0) {
