@@ -107,7 +107,24 @@
 									<input type="text" name="currency-field" id="currency-field" pattern="^\R\d{1,3}(,\d{3})*(\.\d+)?$" value="" data-type="currency" placeholder="R1,000,000.00">
 								</div>
 							</div>
-							<textarea id="description" name="itemDescription" placeholder="Item Description"></textarea>
+                            <div class="row">
+                                <div class="col-sm-6"style="overflow-y: auto; max-height: 200px">
+                                    <div id="add_extra" class="extras w3-center">
+                                        <button type="button" name="button" id="viewAddExtra">Click to Add Extras</button>
+                                    </div>
+                                    <ul class="list-unstyled">
+                                        <li>Meat R24.00 <span class="w3-right"><i class="fa fa-trash-o"></i></span></li>
+                                        <li>Cheese R14.21 <span class="w3-right"><i class="fa fa-trash-o"></i></span></li>
+                                        <li>Mash R0.00 <span class="w3-right"><i class="fa fa-trash-o"></i></span></li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-6" style="overflow-y: auto; max-height: 200px">
+                                    <div id="add_sause" class="sauces w3-center">
+                                        <button type="button" name="button" onclick="newinput2()">Click to Add Sauces</button>
+                                    </div>
+                                </div>
+                            </div>
+							<textarea id="description" name="itemDescription" style="margin-top: 10px;" placeholder="Item Description"></textarea>
 						</div>
 						<button type="button" id="submitItem" class="add-item-btn w3-right">Done</button>
 					</form>
@@ -115,6 +132,26 @@
 				</div>
 			</div>
 
+            <div id="addExtraModal" class="modal">
+                <div class="modal-content" style="position: relative;">
+                    <span id="closeAddExtras" class="close">&times;</span>
+                    <h3 class="w3-center" style="margin: 0">Add Extra</h3>
+                    <div class="add-extra">
+                        <h4 class="w3-center" style="color: #008000">Extra Succesfully Added</h4>
+                        <div class="row" style="margin-top: 20px; margin-bottom: 20px">
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" placeholder="Extra Name">
+                            </div>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control" placeholder="Extra Price">
+                            </div>
+                        </div>
+                        <div class="w3-center">
+                            <button type="button" style="background-color: #369; padding: 0.5em 1em; border: none; color: #fff">Add Extra</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- ==========================================================
                                 Adding a category modal 
@@ -207,5 +244,33 @@
     <script type="text/javascript" src="../js/main.js"></script>
     <script type="text/javascript" src="../js/dialog.js"></script>
     <script type="text/javascript" src="../js/functions.js"></script>
+    <script type="text/javascript">
+        var id = 0;
+        var newinput2 = function() {
+            var parent = document.getElementById("add_sause");
+            var field = document.createElement("input");
+            field.className = "myclassname";
+            field.placeholder="Type Sause Name";
+            field.style = "display:block;";
+            field.id = "input" + id;
+            parent.appendChild(field);
+            id += 1;
+        }
+
+        $('#viewAddExtra').on('click', function(){
+            var modal = document.getElementById("addExtraModal");
+            modal.style.display = "block";
+
+            window.onclick = function(event) {
+                if(event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            $('#closeAddExtras').on('click', function(){
+                modal.style.display = "none";
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1299,6 +1299,27 @@ function loadInventory (){
         }
     });
 
+    $('#add_inventory_item_mobile').on('click', function(){
+        var modal = document.getElementById("editItem");
+        $('#editItem').find('h3')[0].innerHTML = "Add Item";
+        $('#editItem').find('.update-Item')[0].innerHTML = "Add Item";
+        $('#item_name_input').val('');
+        $('#item-measure').val('');
+        getDropCategs();
+        $('#h3_remaining').hide();
+        $('#h3_edit').hide();
+        $('#subtract_units').hide();
+        $('#h3_add').show();
+        $('#add_units').show();
+        modal.style.display = "block";
+
+        window.onclick = function(event) {
+            if(event.target == modal) {
+              modal.style.display = "none";
+            }
+        }
+    });
+
     $('#viewAddCategory').on('click', function(){
         var modal = document.getElementById("addInventoryCategory");
         modal.style.display = "block";
