@@ -626,7 +626,6 @@ function loadMenuItems (subCategory){
 	        if(arr1[i] !== arr2[i])
 	            return false;
 	    }
-
 	    return true;
 	}
 }
