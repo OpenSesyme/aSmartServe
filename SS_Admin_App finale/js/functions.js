@@ -157,163 +157,211 @@ function login (){
                                         Menu
 ==============================================================================*/
 function loadMenu (){
-  //Load the Menu page
-  loadMainCategories();
-  $('#main_categories').on('click', '#main', function(){
-    var mainCategory = $(this).find('.dropdown-btn').text().trim();
-    $('#main_name').text(mainCategory);
-    $(this).find('.dropdown-container').empty();
-    this.classList.toggle("active");
-    var dropdownContent = $(this).find('.dropdown-container')[0];
-    if (dropdownContent.style.display === "block") {
-      dropdownContent.style.display = "none";
-    } else {
-      dropdownContent.style.display = "block";
-    }
-    loadSubCategories(mainCategory, this);
-  });
+	//Load the Menu page
+	loadMainCategories();
+	$('#main_categories').on('click', '#main', function(){
+		var mainCategory = $(this).find('.dropdown-btn').text().trim();
+		$('#main_name').text(mainCategory);
+		$(this).find('.dropdown-container').empty();
+		this.classList.toggle("active");
+		var dropdownContent = $(this).find('.dropdown-container')[0];
+		if (dropdownContent.style.display === "block") {
+		  dropdownContent.style.display = "none";
+		} else {
+		  dropdownContent.style.display = "block";
+		}
+		loadSubCategories(mainCategory, this);
+	});
 
-  $('#main_categories').on('click', '.dropdown-container li', function(e){
-    var subCategory = $(this).text();
-    loadMenuItems(subCategory);
-    $('#sub_name').text(subCategory);
-    e.stopPropagation();
-  });
+	$('#main_categories').on('click', '.dropdown-container li', function(e){
+		var subCategory = $(this).text();
+		loadMenuItems(subCategory);
+		$('#sub_name').text(subCategory);
+		e.stopPropagation();
+	});
 
-  $('#add_item_menu').on('click', function(){
-    preparePopupCategories();
-  });
+	$('#add_item_menu').on('click', function(){
+		preparePopupCategories();
+	});
 
-  $('#popup_categories').on('mouseover', '.mainCats', function(){
-    var mainCategory = $(this).text().trim();
-    var subCategories = categoriesMap.get(mainCategory);
-    var divId = $(this).closest('.menuitem').find('.menu-op')[0];
-    $(divId).empty();
-    for (var i = 0; i < subCategories.length; i++) {
-      var category = subCategories[i];
-      var html = '<div class="menuitem"><a class="subCateg">'+category+'</a></div>';
-      $(divId).append(html);
-    }
-  });
+	$('#popup_categories').on('mouseover', '.mainCats', function(){
+		var mainCategory = $(this).text().trim();
+		var subCategories = categoriesMap.get(mainCategory);
+		var divId = $(this).closest('.menuitem').find('.menu-op')[0];
+		$(divId).empty();
+		for (var i = 0; i < subCategories.length; i++) {
+		  var category = subCategories[i];
+		  var html = '<div class="menuitem"><a class="subCateg">'+category+'</a></div>';
+		  $(divId).append(html);
+		}
+	});
 
-  $('#popup_categories').on('click', '.subCateg', function(){
-    var subCategory = $(this).text().trim();
-    var mainCategory = $(this).closest('.menu-op').siblings('.mainCats')[0].innerHTML;
-    var newCategory = mainCategory + "/ " + subCategory;
-    $('#new_cat_name').text(newCategory);
-  });
+	$('#popup_categories').on('click', '.subCateg', function(){
+		var subCategory = $(this).text().trim();
+		var mainCategory = $(this).closest('.menu-op').siblings('.mainCats')[0].innerHTML;
+		var newCategory = mainCategory + "/ " + subCategory;
+		$('#new_cat_name').text(newCategory);
+	});
 
-  $('#submitItem').on('click', function(){
-    var categories = $('#new_cat_name').text();
-    var subCategory = categories.split("/")[1].trim();
-    var price = $('#currency-field').val();
-    var name = $('#item_name').val();
-    var description = $('#description').val();
-    var picture = "https://firebasestorage.googleapis.com/v0/b/smartserve-9e1e5.appspot.com/o/La%20Piazza%20Logo.jpg?alt=media&token=d0468fef-941b-4bc4-a0ef-a9ede8555cb9"
-    price = price.substr(1);
-    if (name.length < 3) {
-      alert("Please enter a valid item name");
-    }else{
-      if (menuItemId != null) {
-        db.collection("LaPiazzaMenu").doc(menuItemId).update({name: name, price: price,
-          description: description, subCate: subCategory})
-        .then(function(){
-          menuItemId = null;
-          window.location.href = "";
-         });
-      }else{
-        db.collection("LaPiazzaMenu").doc().set({name: name, price: price, available: true,
-          description: description, subCate: subCategory, picture: picture})
-        .then(function(){
-          window.location.href = "";
-        });
-      }
-    }
-  });
+	$('#submitItem').on('click', function(){
+		var categories = $('#new_cat_name').text();
+		var subCategory = categories.split("/")[1].trim();
+		var price = $('#currency-field').val();
+		var name = $('#item_name').val();
+		var description = $('#description').val();
+		var picture = "https://firebasestorage.googleapis.com/v0/b/smartserve-9e1e5.appspot.com/o/La%20Piazza%20Logo.jpg?alt=media&token=d0468fef-941b-4bc4-a0ef-a9ede8555cb9"
+		var extrasElems = $('#extras_list').children();
+		var extrasObjs = [];
+		for (var i = 0; i < extrasElems.length; i++) {
+			var child = extrasElems[i];
+			var ExtraName = $(child).find('.extraName').text();
+			var ExtraPrice = $(child).find('.extraPrice').text();
+			var extraObj = {name: ExtraName, price: ExtraPrice};
+			extrasObjs.push(extraObj);
+		}
+		var sidesElems = $('#add_sause').find('input');
+		var sides = [0];
+		for (var i = sidesElems.length - 1; i >= 0; i--) {
+			var side = $(sidesElems[i]).val();
+			if (side != null && side.length > 1) {
+				sides.push(side);
+			}
+		}
+		price = price.substr(1);
+		if (name.length < 3) {
+		  alert("Please enter a valid item name");
+		}else{
+		  if (menuItemId != null) {
+		    db.collection("LaPiazzaMenu").doc(menuItemId).update({name: name, price: price,
+		      description: description, subCate: subCategory, extras: extrasObjs, sides: sides})
+		    .then(function(){
+		      menuItemId = null;
+		      window.location.href = "";
+		     });
+		  }else{
+		    db.collection("LaPiazzaMenu").doc().set({name: name, price: price, available: true,
+		      description: description, subCate: subCategory, picture: picture, extras: extrasObjs, sides: sides})
+		    .then(function(){
+		      window.location.href = "";
+		    });
+		  }
+		}
+	});
 
-  $('#menuItems').on('change', '#availability', function(){
-    var Id = $(this).closest('.price-and-edit').find('p')[0].innerHTML;
-    var selection = $(this).children("option:selected").val();
-    if (selection == "Available") {
-      db.collection("LaPiazzaMenu").doc(Id).update({available: true});
-    }else{
-      db.collection("LaPiazzaMenu").doc(Id).update({available: false});
-    }
-  })
+	$('#menuItems').on('change', '#availability', function(){
+		var Id = $(this).closest('.price-and-edit').find('p')[0].innerHTML;
+		var selection = $(this).children("option:selected").val();
+		if (selection == "Available") {
+		  db.collection("LaPiazzaMenu").doc(Id).update({available: true});
+		}else{
+		  db.collection("LaPiazzaMenu").doc(Id).update({available: false});
+		}
+	});
 
-  $('#menuItems').on('click', '.edit-item', function(){
-    preparePopupCategories();
-    menuItemId = $(this).closest('.price-and-edit').find('p')[0].innerHTML;
-    console.log(menuItemId);
-    var price = $(this).closest('.price-and-edit').find('.price')[0].innerHTML;
-    var name = $(this).closest('.item').find('h3')[0].innerHTML;
-    var description = $(this).closest('.item').find('p')[0].innerHTML;
-    window.location.href="#addItemPopup";
-    var mainCategory = $('#main_name').text().trim();
-    var subCategory = $('#sub_name').text().trim();
-    var newCategory = mainCategory + "/ " + subCategory
-    $('#new_cat_name').text(newCategory);
-    $('#description').val(description);
-    $('#currency-field').val(price);
-    $('#item_name').val(name);
-  });
+	$('#menuItems').on('click', '.edit-item', function(){
+		preparePopupCategories();
+		menuItemId = $(this).closest('.price-and-edit').find('p')[0].innerHTML;
+		console.log(menuItemId);
+		var price = $(this).closest('.price-and-edit').find('.price')[0].innerHTML;
+		var name = $(this).closest('.item').find('h3')[0].innerHTML;
+		var description = $(this).closest('.item').find('p')[0].innerHTML;
+		window.location.href="#addItemPopup";
+		var mainCategory = $('#main_name').text().trim();
+		var subCategory = $('#sub_name').text().trim();
+		var newCategory = mainCategory + "/ " + subCategory
+		$('#new_cat_name').text(newCategory);
+		$('#description').val(description);
+		$('#currency-field').val(price);
+		$('#item_name').val(name);
+	});
 
-  $('#menuItems').on('click', '.remove-item-btn', function(){
-    var id = $(this).siblings('.price-and-edit').find('p')[0].innerHTML;
-    id = "LaPiazzaMenu/" + id;
-    doConfirm(id);
-  });
+	$('#menuItems').on('click', '.remove-item-btn', function(){
+		var id = $(this).siblings('.price-and-edit').find('p')[0].innerHTML;
+		id = "LaPiazzaMenu/" + id;
+		doConfirm(id);
+	});
 
-  $('#add_category').on('click', function(){
-    var modal = document.getElementById("ss_addCategory");
-    modal.style.display = "block";
-    $('#categories_select').empty();
-    $('#categories_select').append('<option selected>New Category</option>');
-    for (var i = 0; i < mainCategories.length; i++) {
-      var mainCategory = mainCategories[i];
-      var htmlMain = '<option>'+mainCategory+'</option>';
-      $('#categories_select').append(htmlMain);
-    }
+	$('#add_category').on('click', function(){
+		var modal = document.getElementById("ss_addCategory");
+		modal.style.display = "block";
+		$('#categories_select').empty();
+		$('#categories_select').append('<option selected>New Category</option>');
+		for (var i = 0; i < mainCategories.length; i++) {
+		  var mainCategory = mainCategories[i];
+		  var htmlMain = '<option>'+mainCategory+'</option>';
+		  $('#categories_select').append(htmlMain);
+		}
 
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = "none";
-      }
-    }
-  });
+		// When the user clicks anywhere outside of the modal, close it
+		window.onclick = function(event) {
+		  if (event.target == modal) {
+		    modal.style.display = "none";
+		  }
+		}
+	});
 
-  $('#categories_select').change(function(){
-    var selectedCat = $(this).children("option:selected").val();
-    $('#editable_sub_categories').children().not(':first-child').remove();
-    if (selectedCat == "New Category") {
-      $('#newCategory').val("");
-      return;
-    }
-    $('#newCategory').val(selectedCat);
-    var subCategories = categoriesMap.get(selectedCat);
-    for (var i = 0; i < subCategories.length; i++) {
-      var subCategory = subCategories[i];
-      $('#editable_sub_categories').append(editableSubCategoryHtml(subCategory));
-    }
-  });
+	$('#categories_select').change(function(){
+		var selectedCat = $(this).children("option:selected").val();
+		$('#editable_sub_categories').children().not(':first-child').remove();
+		if (selectedCat == "New Category") {
+		  $('#newCategory').val("");
+		  return;
+		}
+		$('#newCategory').val(selectedCat);
+		var subCategories = categoriesMap.get(selectedCat);
+		for (var i = 0; i < subCategories.length; i++) {
+		  var subCategory = subCategories[i];
+		  $('#editable_sub_categories').append(editableSubCategoryHtml(subCategory));
+		}
+	});
 
-  $('#editable_sub_categories').on('click', '#remove_subcategory', function(){
-    $(this).closest('.input-group').remove();
-  });
+	$('#editable_sub_categories').on('click', '#remove_subcategory', function(){
+		$(this).closest('.input-group').remove();
+	});
 
-  $('#close_category').on('click', function(){
-    closeEditingCategories();
-  });
+	$('#close_category').on('click', function(){
+		closeEditingCategories();
+	});
 
-  $('#add_categ_btn').on('click', function(){
-    doneChangesToCategories();
-  });
+	$('#add_categ_btn').on('click', function(){
+		doneChangesToCategories();
+	});
 
-  $('.input-group-addon').on('click', function(){
-    var newCategory = $(this).closest('.input-group').find('input').val();
-    $('#editable_sub_categories').append(editableSubCategoryHtml(newCategory));
-  });
+	$('.input-group-addon').on('click', function(){
+		var newCategory = $(this).closest('.input-group').find('input').val();
+		$('#editable_sub_categories').append(editableSubCategoryHtml(newCategory));
+	});
+
+
+	$('#viewAddExtra').on('click', function(){
+	    var modal = document.getElementById("addExtraModal");
+	    modal.style.display = "block";
+
+	    window.onclick = function(event) {
+	        if(event.target == modal) {
+	            modal.style.display = "none";
+	        }
+	    }
+
+	    $('#closeAddExtras').on('click', function(){
+	        modal.style.display = "none";
+	    });
+
+	    $('#add_extra_btn').off('click').on('click', function(){
+	    	var name = $('#extra_name').val().trim();
+	    	var price = $('#extra_price').val().trim();
+	    	var extraHtml = `<li><span class="extraName">${name}</span> R<span class="extraPrice">${price}</span> <span class="w3-right"><i class="fa fa-trash-o"></i></span></li>`;
+	    	$('#extras_list').append(extraHtml);
+	    	$('#extar_success').show();
+	    	$('#extra_name').val('');
+	    	$('#extra_price').val('');
+	    	setTimeout(function() {$('#extar_success').hide()}, 5000);
+	    });
+	});
+
+	$('#extras_list').on('click', '.fa-trash-o', function(){
+		$(this).closest('li').empty();
+	});
 }
 
 function doneChangesToCategories(){

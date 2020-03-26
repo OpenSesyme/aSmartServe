@@ -112,10 +112,8 @@
                                     <div id="add_extra" class="extras w3-center">
                                         <button type="button" name="button" id="viewAddExtra">Click to Add Extras</button>
                                     </div>
-                                    <ul class="list-unstyled">
-                                        <li>Meat R24.00 <span class="w3-right"><i class="fa fa-trash-o"></i></span></li>
-                                        <li>Cheese R14.21 <span class="w3-right"><i class="fa fa-trash-o"></i></span></li>
-                                        <li>Mash R0.00 <span class="w3-right"><i class="fa fa-trash-o"></i></span></li>
+                                    <ul class="list-unstyled" id="extras_list">
+                                        <!-- Extra items -->
                                     </ul>
                                 </div>
                                 <div class="col-sm-6" style="overflow-y: auto; max-height: 200px">
@@ -126,7 +124,7 @@
                             </div>
 							<textarea id="description" name="itemDescription" style="margin-top: 10px;" placeholder="Item Description"></textarea>
 						</div>
-						<button type="button" id="submitItem" class="add-item-btn w3-right">Done</button>
+						<button type="button" id="submitItem" class="add-item-btn w3-right">Save</button>
 					</form>
 					<a class="popup-close" href="">X</a>
 				</div>
@@ -137,17 +135,18 @@
                     <span id="closeAddExtras" class="close">&times;</span>
                     <h3 class="w3-center" style="margin: 0">Add Extra</h3>
                     <div class="add-extra">
-                        <h4 class="w3-center" style="color: #008000">Extra Succesfully Added</h4>
+                        <h4 class="w3-center" style="color: #008000; display: none;" id="extar_success">Extra Succesfully Added</h4>
                         <div class="row" style="margin-top: 20px; margin-bottom: 20px">
                             <div class="col-sm-7">
-                                <input type="text" class="form-control" placeholder="Extra Name">
+                                <input type="text" class="form-control" placeholder="Extra Name" id="extra_name">
                             </div>
                             <div class="col-sm-5">
-                                <input type="number" class="form-control" placeholder="Extra Price">
+                                <input type="number" class="form-control" placeholder="Extra Price" id="extra_price">
                             </div>
                         </div>
                         <div class="w3-center">
-                            <button type="button" style="background-color: #369; padding: 0.5em 1em; border: none; color: #fff">Add Extra</button>
+                            <button type="button" style="background-color: #369; padding: 0.5em 1em; border: none; color: #fff"
+                            id="add_extra_btn">Add Extra</button>
                         </div>
                     </div>
                 </div>
@@ -256,21 +255,6 @@
             parent.appendChild(field);
             id += 1;
         }
-
-        $('#viewAddExtra').on('click', function(){
-            var modal = document.getElementById("addExtraModal");
-            modal.style.display = "block";
-
-            window.onclick = function(event) {
-                if(event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-
-            $('#closeAddExtras').on('click', function(){
-                modal.style.display = "none";
-            });
-        });
     </script>
 </body>
 </html>
