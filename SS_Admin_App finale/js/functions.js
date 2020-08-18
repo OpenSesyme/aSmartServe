@@ -533,6 +533,7 @@ function loadMenuItems (subCategory){
 	$('#menuItems').on('click', '#viewAddIngredients', function(){
         var modal = document.getElementById("addIngredients");
         modal.style.display = "block";
+        $('#ingredients_list').empty();
         const itemName = $(this).closest('.item').find('h3').text();
         const itemId = $(this).closest('.item').find('#doc_id').text(); 
         $('#ingred_popup_title').text(itemName + " Ingredients");
@@ -540,7 +541,7 @@ function loadMenuItems (subCategory){
         showLoader();
 
         MenuRef.doc(itemId).get().then((menuitem) =>{
-            $('#ingredients_list').empty();
+          
         	ingredients = menuitem.data().ingredients;
         	if (ingredients != null) {
         		for (var i = 0; i < ingredients.length; i++) {
@@ -619,9 +620,9 @@ function loadMenuItems (subCategory){
         			$('#ingred_units').append(new Option("qty", "qty"));
         		}
         	})
-        })
+        });
 
-        $('.add-ingred-btn').on('click', function(){
+        $('#btAddIngredient').unbind().on('click', function(){
         	var ingred_id = $('#ingredient_select').val();
         	var units = $("#ingred_units option:selected").text();
         	var name = $( "#ingredient_select option:selected" ).text();
@@ -637,6 +638,8 @@ function loadMenuItems (subCategory){
                                 </h4>
                                 <p hidden id="ingred_id">${ingred_id}</p>
                             </li>`;
+            // console.log($('#ingredients_list').children());
+            // console.log(Ingredient);
             $('#ingredients_list').append(Ingredient);
             $( "#ingred_qty" ).val('');
         });
