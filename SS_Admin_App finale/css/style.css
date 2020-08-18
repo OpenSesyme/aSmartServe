@@ -722,7 +722,6 @@ body {
     background-color: #5fa2db;
     height: 40px;
     color: #fff;
-
 }
 
 #ss_admin_menu .all-popups .modal-content .subcategories .input-group input::placeholder {
@@ -1586,10 +1585,6 @@ body {
 	border-radius: 5px;
 }
 
-#inventory .content .modal-content .edit-item .adding-new-item {
-	
-}
-
 #inventory .content .modal-content .add-category {
 	padding: 0 2em;
 }
@@ -1902,4 +1897,95 @@ body {
 	.modal-content {
 	    width: 100% !important;
 	}
+}
+
+#ss_addCategory .file-upload {
+	width: 600px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+#ss_addCategory .file-upload-btn {
+	width: 200px;
+	margin: 0;
+	color: #fff;
+	background: #369;
+	border: none;
+	padding: 10px;
+	transition: all .65s ease;
+	outline: none;
+	text-transform: uppercase;
+	font-weight: 700;
+}
+
+#ss_addCategory .file-upload-btn:hover {
+	background: #2196F3;
+	color: #ffffff;
+	transition: all .65s ease;
+	cursor: pointer;
+}
+
+#ss_addCategory .file-upload-btn:active {
+	border: 0;
+	transition: all .2s ease;
+}
+
+#ss_addCategory .file-upload-content {
+	display: none;
+	text-align: center;
+}
+
+#ss_addCategory .file-upload-input {
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	outline: none;
+	opacity: 0;
+	cursor: pointer;
+}
+
+#ss_addCategory .image-upload-wrap {
+	margin-top: 20px;
+	border: 0;
+	position: relative;
+	display: block;
+}
+
+#ss_addCategory .image-dropping,
+#ss_addCategory .image-upload-wrap:hover {
+	border: 0;
+}
+
+#ss_addCategory .file-upload-image {
+	max-height: 250px;
+	max-width: 250px;
+	margin: auto;
+	padding: 20px;
+}
+
+#ss_addCategory .remove-image {
+	width: 200px;
+	margin: 0;
+	color: #fff;
+	background: #cd4535;
+	border: none;
+	padding: 10px;
+	transition: all .2s ease;
+	outline: none;
+	text-transform: uppercase;
+	font-weight: 700;
+}
+
+#ss_addCategory .remove-image:hover {
+	background: #c13b2a;
+	color: #ffffff;
+	transition: all .2s ease;
+	cursor: pointer;
+}
+  
+#ss_addCategory .remove-image:active {
+	border: 0;
+	transition: all .2s ease;
 }
