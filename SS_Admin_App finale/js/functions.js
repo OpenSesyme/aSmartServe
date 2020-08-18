@@ -35,6 +35,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
+let storageRef = firebase.storage().ref();
 const Inventory = db.collection("LaPiazzaInventory");
 const MenuRef = db.collection("LaPiazzaMenu");
 
@@ -381,10 +382,11 @@ function doneChangesToCategories(){
       .update({categories: mainCategories, [mainCategory]: subCategories})
       .then(function(){
         categoriesMap.set(mainCategory, subCategories);
+        uploadImage(mainCategory);
         closeEditingCategories();
       });
     }else{
-      closeEditingCategories();
+      	closeEditingCategories();
       return;
     }
   }else{
@@ -403,6 +405,7 @@ function doneChangesToCategories(){
         categoriesMap.set(mainCategory, subCategories);
         closeEditingCategories();
       });
+    	uploadImage(mainCategory);
     }else{
       closeEditingCategories();
     }
@@ -679,6 +682,24 @@ function loadMenuItems (subCategory){
 	    }
 	    return true;
 	}
+}
+
+function uploadImage(category){
+	let fileUpload = $('.file-upload-input')[0].files[0];
+	if (fileUpload == null) {return}
+	let fileRef = storageRef.child(category + ".jpg");
+	var uploadTask = fileRef.put(fileUpload);
+	uploadTask.on('state_changed', function(snapshot){
+	  showLoader();
+	}, function(error) {
+		showSnackbar("Image Upload Failed");
+		hideLoader();
+	}, function() {
+	  uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+	    console.log('File available at', downloadURL);
+	    hideLoader();
+	  });
+	});
 }
 
 /*================================================================================

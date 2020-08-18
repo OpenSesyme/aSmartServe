@@ -252,6 +252,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-storage.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
     <script type="text/javascript" src="../js/bootstrap.min.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.3.5/js/swiper.min.js'></script>
@@ -272,24 +273,24 @@
         }
 
         function readURL(input) {
-        if (input.files && input.files[0]) {
+            if (input.files && input.files[0]) {
 
-            var reader = new FileReader();
+                var reader = new FileReader();
 
-            reader.onload = function(e) {
-            $('.image-upload-wrap').hide();
+                reader.onload = function(e) {
+                $('.image-upload-wrap').hide();
 
-            $('.file-upload-image').attr('src', e.target.result);
-            $('.file-upload-content').show();
+                $('.file-upload-image').attr('src', e.target.result);
+                $('.file-upload-content').show();
 
-            $('.image-title').html(input.files[0].name);
-            };
+                $('.image-title').html(input.files[0].name);
+                };
 
-            reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(input.files[0]);
 
-        } else {
-            removeUpload();
-        }
+            } else {
+                removeUpload();
+            }
         }
 
         function removeUpload() {
