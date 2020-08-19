@@ -33,11 +33,30 @@ const firebaseConfig = {
     appId: "1:1070424995930:web:9437bd15d3755625e30063",
     measurementId: "G-2W5H7B4H2D"
 };
-firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
-let storageRef = firebase.storage().ref();
-const Inventory = db.collection("LaPiazzaInventory");
-const MenuRef = db.collection("LaPiazzaMenu");
+const mainApp = firebase.initializeApp(firebaseConfig);
+
+// Reviews Project
+var secondFirebaseConfig = {
+	apiKey: "AIzaSyBI6MUyP0xyIQ_of3y62TVXl3tFyZfOjes",
+	authDomain: "resturantsdata.firebaseapp.com",
+	databaseURL: "https://resturantsdata.firebaseio.com",
+	projectId: "resturantsdata",
+	storageBucket: "resturantsdata.appspot.com",
+	messagingSenderId: "272512424369",
+	appId: "1:272512424369:web:b1e3b99e893ce40ead0590",
+	measurementId: "G-3V2BX5DF5Q"
+};
+// Initialize Second Firebase Project
+const ReviewsApp = firebase.initializeApp(secondFirebaseConfig, 'ReviewsProject');
+
+// var db = mainApp.firestore();
+var db = ReviewsApp.firestore();
+let storageRef = ReviewsApp.storage().ref();
+// let storageRef = firebase.storage().ref();
+// const Inventory = db.collection("LaPiazzaInventory");
+// const MenuRef = db.collection("LaPiazzaMenu");
+const Inventory = db.collection("TestLaPiazzaInventory");
+const MenuRef = db.collection("TestLaPiazzaMenu");
 
 
 /*==============================================================================
@@ -410,6 +429,9 @@ function doneChangesToCategories(){
       closeEditingCategories();
     }
   }
+  if ($('.file-upload-input')[0].files[0]) {
+    uploadImage(mainCategory);
+  }
 }
 
 function arraysEqual(arr1, arr2) {
@@ -485,7 +507,7 @@ function loadMainCategories(){
 
 function loadSubCategories (mainCategory, parent){
   subCategories = [];
-  db.collection("LaPiazzaMenu").doc("categories").get().then((doc) =>{
+  MenuRef.doc("categories").get().then((doc) =>{
     subCategories = doc.get(mainCategory);
     loadMenuItems(subCategories[0]);
     $('#sub_name').text(subCategories[0]);
