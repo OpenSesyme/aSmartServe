@@ -162,10 +162,11 @@ function login (){
   var index = adminsList.findIndex((e) => e.name === username);
   if (index == -1) {
     alert("Username or password incorrect");
-  }else{
+  } else{
     var currentUser = adminsList[index];
     var correctPass = currentUser.emplNo;
     if (password == correctPass) {
+      console.log(password);
       sessionStorage.setItem("SignedUser", JSON.stringify(currentUser));
       window.location.href = "../index.html";
     }else{
