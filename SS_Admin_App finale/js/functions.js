@@ -55,6 +55,7 @@ let storageRef = ReviewsApp.storage().ref();
 // let storageRef = firebase.storage().ref();
 // const Inventory = db.collection("LaPiazzaInventory");
 // const MenuRef = db.collection("LaPiazzaMenu");
+const ReviewsRef = db.collection("Reviews");
 const Inventory = db.collection("TestLaPiazzaInventory");
 const MenuRef = db.collection("TestLaPiazzaMenu");
 const EmployeesRef = db.collection("TestEmployees");
@@ -122,6 +123,9 @@ window.onload = function(){
         break;
       case "login.html":
           loadLogIn();
+        break;
+      case "reviews.html":
+        loadReviews();
         break;
     }
   });
@@ -1915,6 +1919,148 @@ function isCurrentMonth(inputDate){
   }else { 
   	return false; 
   }  
+}
+
+function loadReviews() {
+	ReviewsRef.get().then((reviews)=>{
+		$('#ss_reviews').empty();
+		reviews.forEach((review)=>{
+			const reviewData = review.data();
+			const finalRating = reviewData.finalRating;
+			var reviewHtml = `<div class="content ">
+								<div class="ss-review">
+								<div class="header row">
+									<div class="col-sm-8 mx-auto">
+										<div class="col-sm-8 name-and-date">
+											<h2 >${reviewData.guestName}</h2>
+											<span>${reviewData.reviewedAt.toDate().toLocaleString()}</span>
+										</div>
+										<div class="col-sm-4">
+											<fieldset class="rating w3-right">
+												<input type="radio" id="star5" name="rating1" class="select-star" value="5"/>
+												<label class = "full" for="star5" title="Awesome - 5 stars"></label>
+
+												<input type="radio" id="star4half" class="select-star" name="rating1" value="4.5"/>
+												<label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+
+												<input type="radio" id="star4" class="select-star" name="rating1" value="4"/>
+												<label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+
+												<input type="radio" id="star3half" class="select-star" name="rating1" value="3.5" />
+												<label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+
+												<input type="radio" id="star3" class="select-star" name="rating1" value="3" />
+												<label class = "full" for="star3" title="Meh - 3 stars"></label>
+
+												<input type="radio" id="star2half" name="rating1" value="2.5" />
+												<label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+
+												<input type="radio" id="star2" class="select-star" name="rating1" value="2" />
+												<label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+
+												<input type="radio" id="star1half" class="select-star" name="rating1" value="1.5" />
+												<label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+
+												<input type="radio" id="star1" class="select-star" name="rating1" value="1" />
+												<label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+
+												<input type="radio" id="starhalf" class="select-star" name="rating1" value="0.5" />
+												<label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>
+											</fieldset>
+										</div>
+									</div>
+								</div>
+
+								<div class="ss-review-answers row">
+									<div class="col-sm-8" id="${review.id}">
+										<p>${reviewData.reviewText}</p>
+										<div class="quest-footer">
+											<span>${reviewData.guestEmail}</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							</div>`;
+			$('#ss_reviews').append(reviewHtml);
+			loadReviewQuestions(reviewData.questions, review.id);
+		});
+	});
+}
+
+function loadReviewQuestions(questions, id) {
+	questions.forEach((question)=>{
+		var check1, check2, check3, check4, check5, check6, check7, check8, check9, check0 = "";
+		console.log(question.rating)
+		switch (+question.rating) {
+			case 0.5:
+				check0 = "checked"
+				break;
+			case 1:
+				check1 = "checked"
+				break;
+			case 1.5:
+				check2 = "checked"
+				break;
+			case 2:
+				check3 = "checked"
+				break;
+			case 2.5:
+				check4 = "checked"
+				break;
+			case 3:
+				check5 = "checked"
+				break;
+			case 3.5:
+				check6 = "checked"
+				break;
+			case 4:
+				check7 = "checked"
+				break;
+			case 4.5:
+				check8 = "checked"
+				break;
+			case 5:
+				check9 = "checked"
+				break;
+			default:
+				break;
+		}
+		var questionHtml = `<div class="question">
+								<h3>${question.question}</h3>
+								<fieldset class="rating">
+									<input type="radio" id="star5" name="rating1" class="select-star" value="5" ${check9}/>
+									<label class = "full" for="star5" title="Awesome - 5 stars"></label>
+
+									<input type="radio" id="star4half" class="select-star" name="rating1" value="4.5"  ${check8}/>
+									<label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+
+									<input type="radio" id="star4" class="select-star" name="rating1" value="4" ${check7}/>
+									<label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+
+									<input type="radio" id="star3half" class="select-star" name="rating1" value="3.5"  ${check6}/>
+									<label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+
+									<input type="radio" id="star3" class="select-star" name="rating1" value="3"  ${check5}/>
+									<label class = "full" for="star3" title="Meh - 3 stars"></label>
+
+									<input type="radio" id="star2half" name="rating1" value="2.5"  ${check4}/>
+									<label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+
+									<input type="radio" id="star2" class="select-star" name="rating1" value="2" ${check3}/>
+									<label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+
+									<input type="radio" id="star1half" class="select-star" name="rating1" value="1.5"  ${check2}/>
+									<label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+
+									<input type="radio" id="star1" class="select-star" name="rating1" value="1"  ${check1}/>
+									<label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+
+									<input type="radio" id="starhalf" class="select-star" name="rating1" value="0.5"  ${check0}/>
+									<label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>
+								</fieldset>
+							</div>`;
+			$('#'+id).prepend(questionHtml);
+	});
 }
 
 /*==============================================================================
