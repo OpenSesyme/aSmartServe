@@ -57,13 +57,14 @@ let storageRef = ReviewsApp.storage().ref();
 // const MenuRef = db.collection("LaPiazzaMenu");
 const Inventory = db.collection("TestLaPiazzaInventory");
 const MenuRef = db.collection("TestLaPiazzaMenu");
+const EmployeesRef = db.collection("TestEmployees");
 
 
 /*==============================================================================
                         Loading appropriate functions
 ==============================================================================*/
 window.onload = function(){
-  db.collection("Employees").onSnapshot(function(querySnapshot) {
+  EmployeesRef.onSnapshot(function(querySnapshot) {
     employeesList = [];
       querySnapshot.forEach((doc) => {
           var empNo = doc.get("empNumber");
